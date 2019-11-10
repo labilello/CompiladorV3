@@ -12,5 +12,16 @@ h2                            FLOAT                         --
 constante1                    CONST_INTEGER                 123                           
 constante2                    CONST_FLOAT                   0.5                           
 constante3                    CONST_STRING                  "HOLA"                        
+_2147483.                     CONST_FLOAT                   2147483.                      
 string1                       CONST_STRING                  "ASD ASD AAASSD"              
+_2.                           CONST_FLOAT                   2.                            
+_0.5                          CONST_FLOAT                   0.5                           
+_5                            CONST_INTEGER                 5                             
+_25                           CONST_INTEGER                 25                            
+_3                            CONST_INTEGER                 3                             
+_52                           CONST_INTEGER                 52                            
+_125                          CONST_INTEGER                 125                           
 constante5                    CONST_STRING                  "1113333333"                  
+_24                           CONST_INTEGER                 24                            
+_6                            CONST_INTEGER                 6                             
+_123                          CONST_INTEGER                 123                           

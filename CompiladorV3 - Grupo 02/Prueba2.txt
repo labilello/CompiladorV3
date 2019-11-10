@@ -13,7 +13,6 @@ asd/--
 ENDVAR
 
 
-CONST constante1 = 123;
-CONST constante2 = .5;
 CONST constante3 = "HOLA";
 b = 2;
+aa = 3.;

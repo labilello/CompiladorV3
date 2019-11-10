@@ -136,32 +136,32 @@ mov al,0
 int 21h
 
 STRLEN PROC NEAR
-	mov BX,0
+    mov BX,0
 
 STRL01:
-	cmp BYTE PTR [SI+BX],'$'
-	je STREND
-	inc BX
-	jmp STRL01
+    cmp BYTE PTR [SI+BX],'$'
+    je STREND
+    inc BX
+    jmp STRL01
 
 STREND:
-	ret
+    ret
 
 STRLEN ENDP
 
 COPIAR PROC NEAR
-	call STRLEN
-	cmp BX,MAXTEXTSIZE
-	jle COPIARSIZEOK
-	mov BX,MAXTEXTSIZE
+    call STRLEN
+    cmp BX,MAXTEXTSIZE
+    jle COPIARSIZEOK
+    mov BX,MAXTEXTSIZE
 
 COPIARSIZEOK:
-	mov CX,BX
-	cld
-	rep movsb
-	mov al,'$'
-	mov BYTE PTR [DI],al
-	ret
+    mov CX,BX
+    cld
+    rep movsb
+    mov al,'$'
+    mov BYTE PTR [DI],al
+    ret
 
 COPIAR ENDP
 

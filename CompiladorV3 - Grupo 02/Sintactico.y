@@ -189,8 +189,16 @@ tipoasig			:		varconstante
 									yyerror("SINTAX ERROR: ID no declarado anteriormente");
 							}		;
 							
-varconstante		:		CTE_E	{itoa(yylval.intval, valorConstante, 10); strcpy(aux2, "INTEGER");}	|
-							CTE_R	{gcvt(yylval.val, 10, valorConstante); strcpy(aux2, "FLOAT");} 	;
+varconstante		:		CTE_E	{
+										itoa(yylval.intval, valorConstante, 10); strcpy(aux2, "INTEGER");
+										strcpy(cadAux, "_");
+										insertarConstante(strcat(cadAux, valorConstante), "CONST_INTEGER", valorConstante);
+									}	|
+							CTE_R	{
+										gcvt(yylval.val, 10, valorConstante); strcpy(aux2, "FLOAT");
+										strcpy(cadAux, "_");
+										insertarConstante(strcat(cadAux, valorConstante), "CONST_FLOAT", valorConstante);
+									} 	;
 							
 decision			:		C_IF_A PARENTESIS_A condicion PARENTESIS_C LLAVE_A bloqprograma LLAVE_C 
 							{	modificarTerceto(desapilar(&pilaPos), 0);
