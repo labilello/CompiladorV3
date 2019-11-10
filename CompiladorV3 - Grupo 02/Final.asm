@@ -1,109 +1,51 @@
 include macros2.asm
 include number.asm
- .MODEL LARGE
+
+.MODEL LARGE
 .386
 .STACK 200h
+
 MAXTEXTSIZE equ 50
- 
+
 .DATA
-
-
-
-
-
-
-
-
+	_aa	dd	?
+	_b	dd	?
+	_a	dd	?
+	_d	dd	?
+	_p1	dd	?
+	_p2	dd	?
+	_p3	dd	?
+	_p4	dd	?
+	_h1	dd	?
+	_h2	dd	?
+	_constante1	dd	2.00
+	_constante2	dd	0.5
+	_constante3	db	"HOLA", "$"
+	__2147483.00	dd	2147483.00
+	_string1	db	"ASD ASD AAASSD", "$"
+	__2.00	dd	2.00
+	__0.50	dd	0.50
+	__5.00	dd	5.00
+	__25.00	dd	25.00
+	__3.00	dd	3.00
+	__52.00	dd	52.00
+	__125.00	dd	125.00
+	_constante5	db	"1113333333", "$"
+	__"HOLA"	db	"HOLA", "$"
+	__24.00	dd	24.00
+	__6.00	dd	6.00
+	__"1"	db	"1", "$"
+	__"2"	db	"2", "$"
+	__"3"	db	"3", "$"
+	__123.00	dd	123.00
+	__"4"	db	"4", "$"
+	__"5"	db	"5", "$"
+	__"5b"	db	"5b", "$"
 
 .CODE
-;************************************************************
-; devuelve en BX la cantidad de caracteres que tiene un string
-; DS:SI apunta al string.
-;
-STRLEN PROC
-    mov bx,0
-STRL01:
-    cmp BYTE PTR [SI+BX],'$'
-    je STREND
-    inc BX
-    jmp STRL01
-STREND:
-    ret
-STRLEN ENDP
-
-
-;*********************************************************************8
-; copia DS:SI a ES:DI; busca la cantidad de caracteres
-;
-COPIAR PROC
-    call STRLEN
-    cmp bx,MAXTEXTSIZE
-    jle COPIARSIZEOK
-    mov bx,MAXTEXTSIZE
-COPIARSIZEOK:
-    mov cx,bx
-    cld
-    rep movsb
-    mov al,'$'
-    mov BYTE PTR [DI],al
-    ret
-COPIAR ENDP
-
-
-;*******************************************************
-; concatena DS:SI al final de ES:DI.
-;
-; busco el size del primer string
-; sumo el size del segundo string
-; si la suma excede MAXTEXTSIZE, copio solamente MAXTEXTSIZE caracteres
-; si la suma NO excede MAXTEXTSIZE, copio el total de caracteres que tiene el segundo string
-;
-CONCAT PROC
-    push ds
-    push si
-    call STRLEN
-    mov dx,bx
-    mov si,di
-    push es
-    pop ds
-    call STRLEN
-    add di,bx
-    add bx,dx
-    cmp bx,MAXTEXTSIZE
-    jg CONCATSIZEMAL
-CONCATSIZEOK:
-    mov cx,dx
-    jmp CONCATSIGO
-CONCATSIZEMAL:
-    sub bx,MAXTEXTSIZE
-    sub dx,bx
-    mov cx,dx
-CONCATSIGO:
-    push ds
-    pop es
-    pop si
-    pop ds
-    cld
-    rep movsb
-    mov al,'$'
-    mov BYTE PTR [DI],al
-    ret
-CONCAT ENDP
-
-
-
-
 START:
 ; ******* CODIGO PERMANENTE ********
-    mov AX,@DATA
-    mov DS,AX
-    mov es,ax   
+	mov AX,@DATA
+	mov DS,AX
+	mov es,ax
 ; **********************************
-
-
-
-
-
-
-
-END START
