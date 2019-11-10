@@ -9,8 +9,15 @@ p3                            INTEGER                       ?
 p4                            FLOAT                         ?                             
 h1                            INTEGER                       ?                             
 h2                            FLOAT                         ?                             
-constante1                    CONST_INTEGER                 2.00                          
+constante1                    CONST_INTEGER                 2                             
 constante2                    CONST_FLOAT                   0.5                           
 constante3                    CONST_STRING                  "HOLA"                        
 string1                       CONST_STRING                  "ASD ASD AAASSD"              
 constante5                    CONST_STRING                  "1113333333"                  
+_"HOLA"                       CONST_STRING                  "HOLA"                        
+_"1"                          CONST_STRING                  "1"                           
+_"2"                          CONST_STRING                  "2"                           
+_"3"                          CONST_STRING                  "3"                           
+_"4"                          CONST_STRING                  "4"                           
+_"5"                          CONST_STRING                  "5"                           
+_"5b"                         CONST_STRING                  "5b"                          
