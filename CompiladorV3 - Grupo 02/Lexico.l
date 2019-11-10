@@ -10,8 +10,8 @@ int cota_error(char* mensaje);
 void insertarEnTabla(char*,char*,char*,int,double);
 
 %}
-%option noyywrap  
-%option yylineno 
+%option noyywrap
+%option yylineno
 
 DIGITO			[0-9]
 LETRA			[a-zA-Z]
@@ -30,7 +30,7 @@ CTE_S 		\".*\"
 "UNTIL"			{ printf("UNTIL");			return C_REPEAT_C; }
 "IF"			{ printf("IF");				return C_IF_A; }
 "ELSE"			{ printf("ELSE");			return C_IF_E; }
-	
+
 "FILTER"		{ printf("FILTER");			return C_FILTER; }
 "_"				{ printf("_");				return C_FILTER_REFENTEROS; }
 
@@ -72,24 +72,24 @@ CTE_S 		\".*\"
 "OR"		{ printf("OR");		return OP_LOGICO_OR;}
 "!"			{ printf("!");		return OP_NEGACION; }
 
-{ID}			{ 
-					yylval.str_val = yytext; 
-					printf( "ID(%s)", yylval.str_val); 
+{ID}			{
+					yylval.str_val = yytext;
+					printf( "ID(%s)", yylval.str_val);
 					return ID;
 				}
 {CTE_E}			{ 	if(atoi(yytext)<=32767 && atoi(yytext)>=-32768)
 					{
-						yylval.intval = atoi(yytext); 
-						printf( "ENTERO(%d)", yylval.intval); 
+						yylval.intval = atoi(yytext);
+						printf( "ENTERO(%d)", yylval.intval);
 						/*insertarEnTabla("","CONST_INT","--",yylval.intval,0);*/
 						return CTE_E;
 					}
 					cota_error("Variable Entera supera limite permitido");
 				}
-{CTE_R}			{ 
+{CTE_R}			{
 					if(atof(yytext)<=2147483647 && atof(yytext)>=-2137483648)
 					{
-						yylval.val = atof(yytext); 
+						yylval.val = atof(yytext);
 						printf( "FLOAT(%f)", yylval.val);
 						/*insertarEnTabla("","CONST_REAL","--",0,yylval.val);*/
 						return CTE_R;
@@ -98,8 +98,8 @@ CTE_S 		\".*\"
 				}
 {CTE_S}			{
 					if(strlen(yytext)<=32){ /* TAMBIEN CUENTA LAS COMILLAS; SON 2 COMILLAS + 30 CARACTERES */
-						yylval.str_val = yytext; 
-						printf( "STRING(%s)", yylval.str_val); 
+						yylval.str_val = yytext;
+						printf( "STRING(%s)", yylval.str_val);
 						/*insertarEnTabla(yylval.str_val,"CONST_STR",yylval.str_val,0,0);*/
 						return CTE_S;
 					}
@@ -110,8 +110,8 @@ CTE_S 		\".*\"
 [\n{1}]			{ printf("\n"); }		/* NO RETORNA TOKEN */
 [" "{1}]		{ printf(" "); }		/* NO RETORNA TOKEN */
 
-"\n"      		
-"\t"	
+"\n"
+"\t"
 %%
 
 int cota_error(char* mensaje)
@@ -120,4 +120,3 @@ int cota_error(char* mensaje)
 	system ("Pause");
 	exit (1);
 }
-
