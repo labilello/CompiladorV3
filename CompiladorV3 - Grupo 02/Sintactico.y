@@ -20,14 +20,6 @@ t_pila pilaRepeat;
 t_pila pilaFiltro;
 /**********************************/
 
-/************* ELEMENTOS NECESARIOS PARA ASSEMBLER ********/
-void generarAssembler();
-void imprimirVariablesASM(FILE *);
-void imprimirCabeceraASM(FILE *);
-void imprimirCabeceraCodeASM(FILE *);
-/**********************************************************/
-
-
 /************* ELEMENTOS NECESARIOS PARA TERCERTOS ********/
 typedef struct
 {
@@ -97,6 +89,40 @@ void insertarIDs();
 void mostrarID();
 int existeID(char* id);
 void insertarConstante(char* nombre, char* tipo, char* valor);
+/***********************************************************************/
+/*                   ELEMENTOS NECESARIOS PARA ASSEMBLER               */
+typedef struct {
+  int indice;
+  char aux[20];
+}tipoTercetoAsm;
+
+regTerceto tercetoArchivo;
+tipoTercetoAsm tercetoLeido[2048];
+char aux[10];
+char cteAux[50];
+char underscore[50];
+
+void generarAssembler(void);
+void crearTercetoAsm(int ind, char *varAux);
+int tipoElemento(char *); // funcion para obtener el tipo del elemento
+void crearFloat(char *); /* funcion para cambiar los puntos de una variable
+                           float a un _ para poder llamarla como cte sin nombre */
+void crearInstruccion(FILE *,char *,char *,char *, char *);
+/* Condensa la funcion fprintf con un formato ""%s\t%s\t%s\t%s\n" */
+void leerTerceto(char*);
+/* Recibe una linea del archivo de tercetos, y lo pasa a la estructura de tercetos */
+void generarAssembler();
+void imprimirVariablesASM(FILE *);
+void imprimirCabeceraASM(FILE *);
+void imprimirCabeceraCodeASM(FILE *);
+void crearValor(FILE *);
+void crearFADD(FILE *);
+void crearFSUB(FILE *);
+void crearFMUL(FILE *);
+void crearFDIV(FILE *);
+void crearASIG(FILE *);
+
+
 /***********************************************************************/
 %}
 
@@ -233,7 +259,7 @@ bucle				:		C_REPEAT_A
 
 condicion			:		comparacion
 							{	sprintf(aux1, "[ %d ]", indice_comparacion);
-								indice_condicion = crearTerceto(opSalto, aux1, "");
+								indice_condicion = crearTerceto(opSalto, aux1, "--");
 								apilar(&pilaPos, indice_condicion);
 							}	|
 							OP_NEGACION PARENTESIS_A comparacion PARENTESIS_C
@@ -324,10 +350,10 @@ termino				:		factor { indice_termino = indice_factor; }				|
 
 factor				:		ID 
 							{	//if(existeID(yylval.str_val))
-									indice_factor = crearTerceto(yylval.str_val,"","");
+									indice_factor = crearTerceto(yylval.str_val,"--","--");
 								/*SINO ERROR PORQUE NO EXISTE*/
 							}				|
-							varconstante {indice_factor = crearTerceto(valorConstante, "", "");}	|
+							varconstante {indice_factor = crearTerceto(valorConstante, "--", "--");}	|
 							PARENTESIS_A expresion PARENTESIS_C {indice_factor = indice_expresion;}	;
 
 
@@ -336,18 +362,18 @@ imprimir			:		PRINT CTE_S {
 								strcpy(aux1, yylval.str_val);
 								strcpy(cadAux, "_");
 								insertarConstante(strcat(cadAux, yylval.str_val), "CONST_STRING", yylval.str_val);
-								indice_out = crearTerceto("output", aux1, "");
+								indice_out = crearTerceto("output", aux1, "--");
 							}	PYC	|
 							PRINT ID { 
 								//if(existeID(yylval.str_val))
 									strcpy(aux1, yylval.str_val);
-									indice_out = crearTerceto("output", aux1, "");
+									indice_out = crearTerceto("output", aux1, "--");
 								/*SINO ERROR PORQUE NO EXISTE*/
 							}	PYC	;
 leer				:		READ ID	{
 								//if(existeID(yylval.str_val))
 									strcpy(aux1, yylval.str_val);
-									indice_in = crearTerceto("input", aux1, "");
+									indice_in = crearTerceto("input", aux1, "--");
 								/*SINO ERROR PORQUE NO EXISTE*/
 							}	PYC	;
 
@@ -366,7 +392,7 @@ condfiltro			:		C_FILTER_REFENTEROS op_comparacion expresion ;
 listvarfiltro		:		listvarfiltro COMA ID 
 							{	//if(existeID(yylval.str_val))
 									strcpy(aux1, yylval.str_val);
-									indice_filtro = crearTerceto(aux1, "", "");
+									indice_filtro = crearTerceto(aux1, "--", "--");
 								
 									sprintf(aux1, "[ %d ]", indice_expresion);
 									sprintf(aux2, "[ %d ]", numeroTerceto-1);
@@ -385,7 +411,7 @@ listvarfiltro		:		listvarfiltro COMA ID
 							ID	
 							{	//if(existeID(yylval.str_val))
 									strcpy(aux1, yylval.str_val);
-									indice_filtro = crearTerceto(aux1, "", "");
+									indice_filtro = crearTerceto(aux1, "--", "--");
 								
 									sprintf(aux1, "[ %d ]", indice_expresion);
 									sprintf(aux2, "[ %d ]", numeroTerceto-1);
