@@ -118,7 +118,7 @@ start				:		archivo ; /* SIMBOLO INICIAL */
 	- DECLARACIONES Y CUERPO DE PROGRAMA
 	- CUERPO DE PROGRAMA
 */
-archivo				:		VAR bloqdeclaracion ENDVAR bloqprograma {exportarTablas();} ;
+archivo				:		VAR bloqdeclaracion ENDVAR bloqprograma {exportarTablas(); printf("%f", (float) 5);} ;
 
 /* REGLAS BLOQUE DE DECLARACIONES */
 bloqdeclaracion		:		bloqdeclaracion declaracion ;
@@ -152,7 +152,7 @@ sentencia			:		constante	|
 tiposoloid			: 		ID {strcpy(aux1, yylval.str_val);};
 
 constante			:		CONST tiposoloid OP_ASIG CTE_E 
-							{	itoa(yylval.intval, valorConstante, 10);} PYC 
+							{	sprintf(valorConstante, "%.2f", (double) yylval.intval);} PYC 
 							{	indice_constante = crearTerceto("=", aux1, valorConstante);
 								insertarConstante(aux1, "CONST_INTEGER", valorConstante);
 							}		|
@@ -166,6 +166,7 @@ constante			:		CONST tiposoloid OP_ASIG CTE_E
 							{	indice_constante = crearTerceto("=", aux1, valorConstante);
 								insertarConstante(aux1, "CONST_STRING", valorConstante);
 							}		;
+							
 
 asignacion			:		ID	
 							{	if((idAsig1 = existeID(yylval.str_val)) != -1) 
@@ -190,12 +191,14 @@ tipoasig			:		varconstante
 							}		;
 							
 varconstante		:		CTE_E	{
-										itoa(yylval.intval, valorConstante, 10); strcpy(aux2, "INTEGER");
+										sprintf(valorConstante, "%0.2f", (double) yylval.intval);
+										strcpy(aux2, "INTEGER");
 										strcpy(cadAux, "_");
 										insertarConstante(strcat(cadAux, valorConstante), "CONST_INTEGER", valorConstante);
 									}	|
-							CTE_R	{
-										gcvt(yylval.val, 10, valorConstante); strcpy(aux2, "FLOAT");
+							CTE_R	{	sprintf(valorConstante, "%0.2f", (double) yylval.val); 
+										//gcvt(yylval.val, 10, valorConstante); 
+										strcpy(aux2, "FLOAT");
 										strcpy(cadAux, "_");
 										insertarConstante(strcat(cadAux, valorConstante), "CONST_FLOAT", valorConstante);
 									} 	;
@@ -324,6 +327,8 @@ factor				:		ID
 
 imprimir			:		PRINT CTE_S {
 								strcpy(aux1, yylval.str_val);
+								strcpy(cadAux, "_");
+								insertarConstante(strcat(cadAux, yylval.str_val), "CONST_STRING", yylval.str_val);
 								indice_out = crearTerceto("output", aux1, "");
 							}	PYC	|
 							PRINT ID { 
