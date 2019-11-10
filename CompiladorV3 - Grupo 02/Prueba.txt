@@ -22,7 +22,7 @@ CONST string1="ASD ASD AAASSD";
 h2=2.;
 p4=.5;
 
-IF(a<(j+s*5)) {
+IF(a<(j+s*5.5)) {
 	aa=2.;
 }
 IF((a+25*i)>3) {

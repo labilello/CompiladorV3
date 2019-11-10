@@ -12,5 +12,22 @@ h2                            FLOAT                         --
 constante1                    CONST_INTEGER                 2                             
 constante2                    CONST_FLOAT                   0.5                           
 constante3                    CONST_STRING                  "HOLA"                        
+_2147483.00                   CONST_FLOAT                   2147483.00                    
 string1                       CONST_STRING                  "ASD ASD AAASSD"              
+_2.00                         CONST_FLOAT                   2.00                          
+_0.50                         CONST_FLOAT                   0.50                          
+_5.50                         CONST_FLOAT                   5.50                          
+_25                           CONST_INTEGER                 25                            
+_3                            CONST_INTEGER                 3                             
+_5                            CONST_INTEGER                 5                             
+_52                           CONST_INTEGER                 52                            
+_125                          CONST_INTEGER                 125                           
 constante5                    CONST_STRING                  "1113333333"                  
+_HOLA                         CONST_STING                   HOLA                          
+_24                           CONST_INTEGER                 24                            
+_6                            CONST_INTEGER                 6                             
+_1                            CONST_STING                   1                             
+_2                            CONST_STING                   2                             
+_123                          CONST_INTEGER                 123                           
+_4                            CONST_STING                   4                             
+_5b                           CONST_STING                   5b                            
