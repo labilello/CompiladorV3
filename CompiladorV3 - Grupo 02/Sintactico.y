@@ -20,7 +20,6 @@ t_pila pilaRepeat;
 t_pila pilaFiltro;
 /**********************************/
 
-
 /************* ELEMENTOS NECESARIOS PARA TERCERTOS ********/
 typedef struct
 {
@@ -70,7 +69,7 @@ typedef struct
 {
    char nombre[31];
    char tipo[31];
-   char valor[31];
+   char valor[31];  
    char longitud[5];
 } regId;
 
@@ -91,32 +90,42 @@ void mostrarID();
 int existeID(char* id);
 void insertarConstante(char* nombre, char* tipo, char* valor);
 /***********************************************************************/
-/*                   ELEMENTOS NECESARIOS PARA ASSEMBLER               */
-typedef struct {
-  int indice;
-  char aux[20];
-}tipoTercetoAsm;
+int indiceTerceto = 0;
+char underscore[50];
+char aux[10];
+char cteAux[50];
+tipoTercetoAsm tercetoLeido[2048];
 
 regTerceto tercetoArchivo;
-tipoTercetoAsm tercetoLeido[2048];
-char aux[10];
+}tipoTercetoAsm;
+  char aux[20];
+  int indice;
+typedef struct {
+/*                   ELEMENTOS NECESARIOS PARA ASSEMBLER               */
 
 void generarAssembler(void);
 void crearTercetoAsm(int ind, char *varAux);
-int tipoElemento(char *); // funcion para obtener el tipo del elemento
 void crearFloat(char *); /* funcion para cambiar los puntos de una variable
+int tipoElemento(char *); // funcion para obtener el tipo del elemento
                            float a un _ para poder llamarla como cte sin nombre */
 void crearInstruccion(FILE *,char *,char *,char *, char *);
 /* Condensa la funcion fprintf con un formato ""%s\t%s\t%s\t%s\n" */
 void leerTerceto(char*);
 /* Recibe una linea del archivo de tercetos, y lo pasa a la estructura de tercetos */
+void generarAssembler();
+void imprimirVariablesASM(FILE *);
+void imprimirCabeceraASM(FILE *);
+void imprimirCabeceraCodeASM(FILE *);
 void crearValor(FILE *);
+void recorrerTercetos(FILE *);
 void crearFADD(FILE *);
 void crearFSUB(FILE *);
 void crearFMUL(FILE *);
 void crearFDIV(FILE *);
-
+void crearASIG(FILE *);
 /***********************************************************************/
+
+
 %}
 
 
@@ -144,7 +153,7 @@ start				:		archivo ; /* SIMBOLO INICIAL */
 	- DECLARACIONES Y CUERPO DE PROGRAMA
 	- CUERPO DE PROGRAMA
 */
-archivo				:		VAR bloqdeclaracion ENDVAR bloqprograma {exportarTablas();} ;
+archivo				:		VAR bloqdeclaracion ENDVAR bloqprograma {exportarTablas(); generarAssembler();} ;
 
 /* REGLAS BLOQUE DE DECLARACIONES */
 bloqdeclaracion		:		bloqdeclaracion declaracion ;
@@ -342,7 +351,9 @@ factor				:		ID
 
 imprimir			:		PRINT CTE_S {
 								strcpy(aux1, yylval.str_val);
+								strcpy(cadAux, "_");
 								indice_out = crearTerceto("output", aux1, "--");
+								insertarConstante(strcat(cadAux, yylval.str_val), "CONST_STRING", yylval.str_val);
 							}	PYC	|
 							PRINT ID {
 								//if(existeID(yylval.str_val))
@@ -373,7 +384,7 @@ listvarfiltro		:		listvarfiltro COMA ID
 							{	//if(existeID(yylval.str_val))
 									strcpy(aux1, yylval.str_val);
 									indice_filtro = crearTerceto(aux1, "--", "--");
-
+								
 									sprintf(aux1, "[ %d ]", indice_expresion);
 									sprintf(aux2, "[ %d ]", numeroTerceto-1);
 									crearTerceto("CMP", aux1, aux2);
@@ -391,8 +402,8 @@ listvarfiltro		:		listvarfiltro COMA ID
 							ID
 							{	//if(existeID(yylval.str_val))
 									strcpy(aux1, yylval.str_val);
-									indice_filtro = crearTerceto(aux1, "", "");
-
+									indice_filtro = crearTerceto(aux1, "--", "--");
+								
 									sprintf(aux1, "[ %d ]", indice_expresion);
 									sprintf(aux2, "[ %d ]", numeroTerceto-1);
 									crearTerceto("CMP", aux1, aux2);
@@ -523,7 +534,7 @@ void insertarIDs(){
 		{
 			strcpy(tablaId[numeroId].nombre, ids[i]);
 			strcpy(tablaId[numeroId].tipo, tipoid[i]);
-			strcpy(tablaId[numeroId].valor, "--");
+			strcpy(tablaId[numeroId].valor, "?");
 			strcpy(tablaId[numeroId].longitud, "");
 			numeroId++;
 		}
@@ -602,263 +613,230 @@ void exportarTablas()
 	fclose(intermedia);
 
 }
-//*
-int tipoElemento(char *elemento){
+/*	**********************************************
+	******* GENERACION DE CODIGO ASSEMBLER *******
+	*********************************************/
+void generarAssembler() {
+	
+	FILE *codAssembler = fopen("Final.asm", "wt");
+	if(codAssembler == NULL) {
+		return;
+		printf("%s\n", "No pudo abrir el archivo Final");
+	}
+	
+	imprimirCabeceraASM(codAssembler);
+	imprimirVariablesASM(codAssembler);
+	imprimirCabeceraCodeASM(codAssembler);
+	recorrerTercetos(codAssembler);
+	
+	
+	
+	fclose(codAssembler);
+}
 
-	//valores del return
-	//1: Constante entera
-	//2: Constante real
-	//3: Constante string
-	//4: Variable entera
-	//5: Variable real
-	//-1: Error, no fue encntrado
+void imprimirCabeceraASM(FILE *arch) {
+	fprintf(arch, "include macros2.asm\n");
+	fprintf(arch, "include number.asm\n\n");
+	fprintf(arch, ".MODEL LARGE\n");
+	fprintf(arch, ".DATA\n");
+	fprintf(arch, ".STACK 200h\n\n");
+	fprintf(arch, ".386\n");
+	fprintf(arch, "MAXTEXTSIZE equ 50\n\n");
+void imprimirVariablesASM(FILE *arch) {
 
-	FILE * TS;
-	char id[50];
-	char tipo[30];
-	char valor[50];
-	char aux[500];
-	int tam;
-	TS=fopen("ts.txt","rt");
+}
+	char subfijo[50];
 
-	fscanf(TS,"%30s%30s%30s%s\n",id,tipo,valor,aux);
+	for(int i = 0; i < numeroId; i++) {
+		strcpy(subfijo, "_");
+		fprintf(arch, "\t%s\t%s\t%s", strcat(subfijo, tablaId[i].nombre), (strstr(tablaId[i].tipo, "STRING")!= NULL ? "db" : "dd"), tablaId[i].valor);
+		fprintf(arch, "%s\n" , (strstr(tablaId[i].tipo, "STRING")!= NULL ? ", \"$\"" : ""));
+	}
+}
 
-	while(fscanf(TS,"%30s%30s%30s%02d\n",id,tipo,valor,&tam)==4){
-		if(strcmp(valor,elemento)==0){//es una constante
-			if(strcmp(tipo,"CONST_INTEGER")==0){
-				return 1;
-			}else{
-				if(strcmp(tipo,"CONST_REAL")==0){
-					return 2;
-				}else{
-					if(strcmp(tipo,"CONST_STRING")==0){
-						return 3;
-					}
-				}
-			}
-		}else{
-			if(strcmp(valor,"--")==0){//es una variable
-				if(strcmp(id,elemento)==0){
-					if(strcmp(tipo,"INTEGER")==0){
-						return 4;
-					}else{
-						if(strcmp(tipo,"REAL")==0){
-							return 5;
-						}
-					}
-				}
-			}
+void imprimirCabeceraCodeASM(FILE *arch) {
+	fprintf(arch, "\n.CODE\n");
+	fprintf(arch, "START:\n");
+	fprintf(arch, "; ******* CODIGO PERMANENTE ********\n");
+	fprintf(arch, "\tmov AX,@DATA\n");
+	fprintf(arch, "\tmov DS,AX\n");
+	fprintf(arch, "; **********************************\n");
+	fprintf(arch, "\tmov es,ax\n");
+
+}
+void recorrerTercetos(FILE *arch) {
+
+	// RECORRER LOS TERCETOS
+	for(indiceTerceto = 0; indiceTerceto < numeroTerceto; indiceTerceto++)
+	{
+		printf("indice: %d", indiceTerceto);
+		if(strcmp(tablaTerceto[indiceTerceto].dato2, "--") == 0 && strcmp(tablaTerceto[indiceTerceto].dato3, "--") == 0)
+		{
+		  crearValor(arch);
+
+		}
+		if(strcmp(tablaTerceto[indiceTerceto].dato1, "ADD") == 0)
+		  crearFADD(arch);
+		{
+		}
+
+		if(strcmp(tablaTerceto[indiceTerceto].dato1, "SUB") == 0)
+		{
+		  crearFSUB(arch);
+		}
+
+		{
+		if(strcmp(tablaTerceto[indiceTerceto].dato1, "MUL") == 0)
+		  crearFMUL(arch);
+		}
+
+		if(strcmp(tablaTerceto[indiceTerceto].dato1, "DIV") == 0)
+		{
+		  crearFDIV(arch);
 		}
 
 	}
-	fclose(TS);
-	return -1;
-}
-
-void crearInstruccion(FILE *pf,char *c1,char *c2,char *c3, char *c4){
-  fprintf(pf, "%s\t%s\t%s\t%s\n", c1, c2, c3, c4);
-}
-
-// GENERACION DE ASSEMBLER
-//asumo que todas los numeros son float
-
-void generarAssembler(){
-  int tipo;
-  int i = 0;
-  char linea[50];
-  FILE *codAssembler;
-	FILE *intermedia = fopen("intermedia.txt", "rt");
-  if(intermedia == NULL){
-    printf("%s\n", "No pudo abrir el archivo de tercetos");
-    return;
-  }
-  codAssembler = fopen("Final.asm", "wt");
-  if(codAssembler == NULL){
-    printf("%s\n", "No pudo abrir el archivo Final");
-    fclose(intermedia);
-    return;
-  }
-
-	fprintf(codAssembler, "include macros2.asm\n");
-	fprintf(codAssembler,	"include number.asm\n\n");
-	fprintf(codAssembler, ".MODEL LARGE\n");
-	fprintf(codAssembler, ".386\n");
-	fprintf(codAssembler, ".STACK 200h\n\n");
-	fprintf(codAssembler, "MAXTEXTSIZE equ 50\n\n");
-	fprintf(codAssembler, ".DATA\n");
-
-  //printf("%s", linea);
-  while( fgets(linea, sizeof(linea), intermedia) != NULL )
-  {
-    //fscanf(intermedia, "|  %02d  | ( %s, %s, %s )",&(tercetoArchivo.indice), tercetoArchivo.dato1,tercetoArchivo.dato2,tercetoArchivo.dato3);
-    i++;
-    printf("%s", linea);
-    leerTerceto(linea);
-    if(strcmp(tercetoArchivo.dato2, "--") == 0 && strcmp(tercetoArchivo.dato3, "--") == 0)
-    {
-      crearValor(codAssembler);
-    }
-
-    if(strcmp(tercetoArchivo.dato1, "ADD") == 0)
-    {
-      crearFADD(codAssembler);
-    }
-
-    if(strcmp(tercetoArchivo.dato1, "SUB") == 0)
-    {
-      crearFSUB(codAssembler);
-    }
-
-    if(strcmp(tercetoArchivo.dato1, "MUL") == 0)
-    {
-      crearFMUL(codAssembler);
-    }
-
-    if(strcmp(tercetoArchivo.dato1, "DIV") == 0)
-    {
-      crearFDIV(codAssembler);
-    }
-
-  }
-  fclose(intermedia);
-  fclose(codAssembler);
-}
-
-void leerTerceto(char *linea)
-{
-  char aux[50];
-  char *pini = strchr(linea, '|');
-  char *pfin;
-  pini += 3;
-  pfin = strchr(pini, ' ');
-  *pfin = '\0';
-  strcpy(aux, pini);
-  tercetoArchivo.indice = atoi(aux);
-  pini = pfin + 1;
-  pini = strchr(pini, '(');
-  pini += 2;
-  pfin = strchr(pini, ',');
-  *pfin = '\0';
-  strcpy(aux, pini);
-  strcpy(tercetoArchivo.dato1, aux);
-  pini = pfin + 2;// Sumo 2, por que despues de la coma en cada terceto hay un espacio
-  pfin = strchr(pini, ',');
-  *pfin = '\0';
-  strcpy(aux, pini);
-  strcpy(tercetoArchivo.dato2, aux);
-  pini = pfin + 2;
-  pfin = strchr(pini, ')');
-  --pfin;
-  *pfin = '\0';
-  strcpy(aux, pini);
-  strcpy(tercetoArchivo.dato3, aux);
 }
 
 void crearValor(FILE *pf)
 {
-  char buffer[20];
-  int tipo = tipoElemento(tercetoArchivo.dato1);
-  if(tipo == 2 || tipo == 5)
-  {
-    crearFloat(tercetoArchivo.dato1);
-  }
-  crearInstruccion(pf, "\t", "FLD ", tercetoArchivo.dato1, "");
-  strcpy(aux, "@aux");
-  strcat(aux, itoa(tercetoArchivo.indice, buffer, 10));
-  strcpy(tercetoLeido[tercetoArchivo.indice].aux, aux);
-  crearInstruccion(pf, "\t", "FSTP", aux, "");
+	/*int tipo = tipoElemento(tercetoArchivo.dato1);
+	char buffer[20];
+	char op[10] = "FLD ";
+	if(tipo == 1)
+	{
+		strcpy(operacion, "FILD");
+		strcpy(cteAux, "_");
+		strcat(cteAux, tercetoArchivo.dato1);
+		crearInstruccion(pf, "\t", "FILD", cteAux, "");
+		strcpy(aux, "@aux");
+		strcat(aux, itoa(tercetoArchivo.indice, buffer, 10));
+		strcpy(tercetoLeido[tercetoArchivo.indice].aux, aux);
+		strcat(aux, " ");
+	}
+		crearInstruccion(pf, "\t", "FISTP", aux, "");
+	{
+	if(tipo == 4)
+		strcpy(operacion, "FILD");
+		crearInstruccion(pf, "\t", "FILD", tercetoArchivo.dato1, "");
+		strcpy(aux, "@aux");
+		strcat(aux, itoa(tercetoArchivo.indice, buffer, 10));
+		strcat(aux, " ");
+		strcpy(tercetoLeido[tercetoArchivo.indice].aux, aux);
+		crearInstruccion(pf, "\t", "FISTP", aux, "");
+	}
+	if(tipo == 3){
+	}
+		return;
+	if(tipo == 2)
+	{
+		strcpy(operacion, "FLD ");
+		strcpy(cteAux, "_");
+		crearFloat(tercetoArchivo.dato1);
+		crearInstruccion(pf, "\t", operacion, cteAux, "");
+		strcat(cteAux, tercetoArchivo.dato1);
+		strcpy(aux, "@aux");
+		strcat(aux, itoa(tercetoArchivo.indice, buffer, 10));
+		strcpy(tercetoLeido[tercetoArchivo.indice].aux, aux);
+		strcat(aux, " ");
+	}
+		crearInstruccion(pf, "\t", "FSTP", aux, "");
+	if(tipo == 5)
+	{*/
+    strcat(underscore, cteAux);
+    strcpy(cteAux, tablaTerceto[indiceTerceto].dato1);
+    crearFloat(cteAux);
+    strcpy(underscore, "_");
+    crearInstruccion(pf, "\t", op, underscore, "");
+    strcpy(aux, "@aux");
+    strcpy(tercetoLeido[tablaTerceto[indiceTerceto].indice].aux, aux);
+    strcat(aux, itoa(tablaTerceto[indiceTerceto].indice, buffer, 10));
+    crearInstruccion(pf, "\t", "FSTP", aux, "");
+	//}
 }
 
 void crearFloat(char *valor){
-  int i;
-  for (i=0;i<strlen(valor);i++){
-    if (valor[i] == '.'){
-      valor[i] = '_';
-    }
-  }
-}
+	int i;
+	for (i=0;i<strlen(valor);i++){
+		if (valor[i] == '.'){
+		}
+			valor[i] = '_';
+	}
 
+}
 void crearFADD(FILE *pf)
 {
-  char buffer[20];
-  char *cad;
-  int i;
-  cad = strrchr(tercetoArchivo.dato2, ']');
-  *cad = '\0';
-  cad = strchr(tercetoArchivo.dato2,'[');
-  cad++; // Salteo el espacio entre el corchete y el indice
-  crearInstruccion(pf, "\t", "FLD ", tercetoLeido[atoi(cad)].aux, "");
-  cad = strrchr(tercetoArchivo.dato3, ']');
-  *cad = '\0';
-  cad = strchr(tercetoArchivo.dato3,'[');
-  cad++; // Salteo el espacio entre el corchete y el indice
-  printf("Add %d\n",atoi(cad) );
-  crearInstruccion(pf, "\t","FADD", tercetoLeido[atoi(cad)].aux, "");
-  strcpy(aux, "@aux");
-  strcat(aux, itoa(tercetoArchivo.indice, buffer, 10));
-  strcpy(tercetoLeido[tercetoArchivo.indice].aux, aux);
-  crearInstruccion(pf, "\t", "FSTP", aux, "");
+	char *cad;
+	char buffer[20];
+	int i;
+	cad+=2; // Salteo el espacio entre el corchete y el indice
+	cad = strchr(tablaTerceto[indiceTerceto].dato2,'[');
+	crearInstruccion(pf, "\t", "FLD ", tercetoLeido[atoi(cad)].aux, "");
+	cad = strchr(tablaTerceto[indiceTerceto].dato3,'[');
+	cad+=2; // Salteo el espacio entre el corchete y el indice
+	crearInstruccion(pf, "\t","FADD", tercetoLeido[atoi(cad)].aux, "");
+	strcpy(aux, "@aux");
+	strcat(aux, itoa(tablaTerceto[indiceTerceto].indice, buffer, 10));
+	strcpy(tercetoLeido[tablaTerceto[indiceTerceto].indice].aux, aux);
+	crearInstruccion(pf, "\t", "FSTP", aux, "");
 }
 
+	char buffer[20];
 void crearFSUB(FILE *pf)
 {
-  char buffer[20];
-  char *cad;
-  int i;
-  cad = strrchr(tercetoArchivo.dato2, ']');
-  *cad = '\0';
-  cad = strchr(tercetoArchivo.dato2,'[');
-  cad++; // Salteo el espacio entre el corchete y el indice
-  crearInstruccion(pf, "\t", "FLD ", tercetoLeido[atoi(cad)].aux, "");
-  cad = strrchr(tercetoArchivo.dato3, ']');
-  *cad = '\0';
-  cad = strchr(tercetoArchivo.dato3,'[');
-  cad++; // Salteo el espacio entre el corchete y el indice
-  crearInstruccion(pf, "\t","FSUB", tercetoLeido[atoi(cad)].aux, "");
-  strcpy(aux, "@aux");
-  strcat(aux, itoa(tercetoArchivo.indice, buffer, 10));
-  strcpy(tercetoLeido[tercetoArchivo.indice].aux, aux);
-  crearInstruccion(pf, "\t", "FSTP", aux, "");
+	char *cad;
+	int i;
+	cad+=2; // Salteo el espacio entre el corchete y el indice
+	cad = strchr(tablaTerceto[indiceTerceto].dato2,'[');
+	crearInstruccion(pf, "\t", "FLD ", tercetoLeido[atoi(cad)].aux, "");
+	cad = strchr(tercetoArchivo.dato3,'[');
+	cad+=2; // Salteo el espacio entre el corchete y el indice
+	crearInstruccion(pf, "\t","FSUB", tercetoLeido[atoi(cad)].aux, "");
+	strcpy(aux, "@aux");
+	strcat(aux, itoa(tablaTerceto[indiceTerceto].indice, buffer, 10));
+	strcpy(tercetoLeido[tablaTerceto[indiceTerceto].indice].aux, aux);
+	crearInstruccion(pf, "\t", "FSTP", aux, "");
 }
 
 void crearFMUL(FILE *pf)
+	char buffer[20];
 {
-  char buffer[20];
-  char *cad;
-  int i;
-  cad = strrchr(tercetoArchivo.dato2, ']');
-  *cad = '\0';
-  cad = strchr(tercetoArchivo.dato2,'[');
-  cad++; // Salteo el espacio entre el corchete y el indice
-  crearInstruccion(pf, "\t", "FLD ", tercetoLeido[atoi(cad)].aux, "");
-  cad = strrchr(tercetoArchivo.dato3, ']');
-  *cad = '\0';
-  cad = strchr(tercetoArchivo.dato3,'[');
-  cad++; // Salteo el espacio entre el corchete y el indice
-  crearInstruccion(pf, "\t","FMUL", tercetoLeido[atoi(cad)].aux, "");
-  strcpy(aux, "@aux");
-  strcat(aux, itoa(tercetoArchivo.indice, buffer, 10));
-  strcpy(tercetoLeido[tercetoArchivo.indice].aux, aux);
-  crearInstruccion(pf, "\t", "FSTP", aux, "");
+	char *cad;
+	int i;
+	cad = strchr(tablaTerceto[indiceTerceto].dato2,'[');
+	cad+=2; // Salteo el espacio entre el corchete y el indice
+	crearInstruccion(pf, "\t", "FLD ", tercetoLeido[atoi(cad)].aux, "");
+	cad = strchr(tablaTerceto[indiceTerceto].dato3,'[');
+	crearInstruccion(pf, "\t","FMUL", tercetoLeido[atoi(cad)].aux, "");
+	cad+=2; // Salteo el espacio entre el corchete y el indice
+	strcpy(aux, "@aux");
+	strcat(aux, itoa(tablaTerceto[indiceTerceto].indice, buffer, 10));
+	strcpy(tercetoLeido[tablaTerceto[indiceTerceto].indice].aux, aux);
 }
+	crearInstruccion(pf, "\t", "FSTP", aux, "");
 
 void crearFDIV(FILE *pf)
 {
-  char buffer[20];
-  char *cad;
-  int i;
-  cad = strrchr(tercetoArchivo.dato2, ']');
-  *cad = '\0';
-  cad = strchr(tercetoArchivo.dato2,'[');
-  cad++; // Salteo el espacio entre el corchete y el indice
-  crearInstruccion(pf, "\t", "FLD ", tercetoLeido[atoi(cad)].aux, "");
-  cad = strrchr(tercetoArchivo.dato3, ']');
-  *cad = '\0';
-  cad = strchr(tercetoArchivo.dato3,'[');
-  cad++; // Salteo el espacio entre el corchete y el indice
-  crearInstruccion(pf, "\t","FDIV", tercetoLeido[atoi(cad)].aux, "");
-  strcpy(aux, "@aux");
-  strcat(aux, itoa(tercetoArchivo.indice, buffer, 10));
-  strcpy(tercetoLeido[tercetoArchivo.indice].aux, aux);
-  crearInstruccion(pf, "\t", "FSTP", aux, "");
+	char buffer[20];
+	char *cad;
+	int i;
+	cad = strchr(tablaTerceto[indiceTerceto].dato2,'[');
+	cad+=2; // Salteo el espacio entre el corchete y el indice
+	crearInstruccion(pf, "\t", "FLD ", tercetoLeido[atoi(cad)].aux, "");
+	cad += 2; // Salteo el espacio entre el corchete y el indice
+	cad = strchr(tablaTerceto[indiceTerceto].dato3,'[');
+	strcpy(aux, "@aux");
+	crearInstruccion(pf, "\t","FDIV", tercetoLeido[atoi(cad)].aux, "");
+	strcat(aux, itoa(tablaTerceto[indiceTerceto].indice, buffer, 10));
+	strcpy(tercetoLeido[tablaTerceto[indiceTerceto].indice].aux, aux);
 }
+	crearInstruccion(pf, "\t", "FSTP", aux, "");
+
+{
+void crearASIG(FILE *pf)
+	char buffer[20];
+}
+
+void crearInstruccion(FILE *pf,char *c1,char *c2,char *c3, char *c4){
+}
+  fprintf(pf, "%s\t%s\t%s\t%s\n", c1, c2, c3, c4);
