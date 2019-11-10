@@ -189,7 +189,9 @@ sentencia			:		constante	|
 tiposoloid			: 		ID {strcpy(aux1, yylval.str_val);};
 
 constante			:		CONST tiposoloid OP_ASIG CTE_E
-							{	itoa(yylval.intval, valorConstante, 10);} PYC
+							{	/*itoa(yylval.intval, valorConstante, 10);*/
+                sprintf(valorConstante, "%.2f", (double)yylval.intval);
+              } PYC
 							{	indice_constante = crearTerceto("=", aux1, valorConstante);
 								insertarConstante(aux1, "CONST_INTEGER", valorConstante);
 							}		|
@@ -226,8 +228,22 @@ tipoasig			:		varconstante
 									yyerror("SINTAX ERROR: ID no declarado anteriormente");
 							}		;
 
-varconstante		:		CTE_E	{itoa(yylval.intval, valorConstante, 10); strcpy(aux2, "INTEGER");}	|
-							CTE_R	{gcvt(yylval.val, 10, valorConstante); strcpy(aux2, "FLOAT");} 	;
+varconstante		:	CTE_E
+                  {
+                    sprintf(valorConstante, "%0.2f", (double) yylval.intval);
+                    strcpy(aux2, "INTEGER");
+                    strcpy(cadAux, "_");
+                    insertarConstante(strcat(cadAux, valorConstante), "CONST_INTEGER", valorConstante);
+                    /*toa(yylval.intval, valorConstante, 10); strcpy(aux2, "INTEGER");*/
+                  }	|
+							    CTE_R
+                  {
+                    sprintf(valorConstante, "%0.2f", (double) yylval.val);
+                    strcpy(aux2,"FLOAT");
+                    strcpy(cadAux, "_");
+                    insertarConstante(strcat(cadAux, valorConstante), "CONST_FLOAT", valorConstante);
+                    /*gcvt(yylval.val, 10, valorConstante); strcpy(aux2, "FLOAT");*/
+                  };
 
 decision			:		C_IF_A PARENTESIS_A condicion PARENTESIS_C LLAVE_A bloqprograma LLAVE_C
 							{	modificarTerceto(desapilar(&pilaPos), 0);
@@ -353,9 +369,9 @@ factor				:		ID
 
 imprimir			:		PRINT CTE_S {
 								strcpy(aux1, yylval.str_val);
-								strcpy(cadAux, "_");
 								indice_out = crearTerceto("output", aux1, "--");
-								insertarConstante(strcat(cadAux, yylval.str_val), "CONST_STRING", yylval.str_val);
+								strcpy(aux1, "_");
+								insertarConstante(strcat(aux1, yylval.str_val), "CONST_STRING", yylval.str_val);
 							}	PYC	|
 							PRINT ID {
 								//if(existeID(yylval.str_val))
@@ -698,6 +714,10 @@ void recorrerTercetos(FILE *arch) {
 		  crearFDIV(arch);
 		}
 
+    if(strcmp(tablaTerceto[indiceTerceto].dato1, "=") == 0){
+      crearASIG(arch);
+    }
+
 	}
 }
 
@@ -838,6 +858,27 @@ void crearFDIV(FILE *pf)
 void crearASIG(FILE *pf)
 {
 	char buffer[20];
+  char op[10] = "FLD ";
+  if( *(tablaTerceto[indiceTerceto].dato3) == '[' ){
+    strcpy(cteAux, tercetoLeido[atoi((tablaTerceto[indiceTerceto].dato3)+2)].aux);
+    crearInstruccion(pf, "\t", op, cteAux, "");
+    crearInstruccion(pf, "\t", "FSTP", tablaTerceto[indiceTerceto].dato2, "");
+  }
+/*  if( true ){
+
+  }
+*/
+}
+
+int tipoElemento(char *elemento)
+{
+  int i = 0;
+  while( strcmp(elemento, tablaId[i].valor) != 0 && i < 2048);
+  if(strcmp(tablaId[i].tipo, "CONST_INTEGER") == 0){ return 1; }
+  if(strcmp(tablaId[i].tipo, "CONST_FLOAT") == 0){ return 2; }
+  if(strcmp(tablaId[i].tipo, "CONST_STRING") == 0){ return 3; }
+  if(strcmp(tablaId[i].tipo, "INTEGER") == 0){ return 4; }
+  return 5;
 }
 
 void crearInstruccion(FILE *pf,char *c1,char *c2,char *c3, char *c4){
