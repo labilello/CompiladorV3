@@ -1,109 +1,104 @@
 include macros2.asm
 include number.asm
- .MODEL LARGE
+
+.MODEL LARGE
 .386
 .STACK 200h
+
 MAXTEXTSIZE equ 50
- 
+
 .DATA
-
-
-
-
-
-
-
-
-
-.CODE
-;************************************************************
-; devuelve en BX la cantidad de caracteres que tiene un string
-; DS:SI apunta al string.
-;
-STRLEN PROC
-    mov bx,0
-STRL01:
-    cmp BYTE PTR [SI+BX],'$'
-    je STREND
-    inc BX
-    jmp STRL01
-STREND:
-    ret
-STRLEN ENDP
-
-
-;*********************************************************************8
-; copia DS:SI a ES:DI; busca la cantidad de caracteres
-;
-COPIAR PROC
-    call STRLEN
-    cmp bx,MAXTEXTSIZE
-    jle COPIARSIZEOK
-    mov bx,MAXTEXTSIZE
-COPIARSIZEOK:
-    mov cx,bx
-    cld
-    rep movsb
-    mov al,'$'
-    mov BYTE PTR [DI],al
-    ret
-COPIAR ENDP
-
-
-;*******************************************************
-; concatena DS:SI al final de ES:DI.
-;
-; busco el size del primer string
-; sumo el size del segundo string
-; si la suma excede MAXTEXTSIZE, copio solamente MAXTEXTSIZE caracteres
-; si la suma NO excede MAXTEXTSIZE, copio el total de caracteres que tiene el segundo string
-;
-CONCAT PROC
-    push ds
-    push si
-    call STRLEN
-    mov dx,bx
-    mov si,di
-    push es
-    pop ds
-    call STRLEN
-    add di,bx
-    add bx,dx
-    cmp bx,MAXTEXTSIZE
-    jg CONCATSIZEMAL
-CONCATSIZEOK:
-    mov cx,dx
-    jmp CONCATSIGO
-CONCATSIZEMAL:
-    sub bx,MAXTEXTSIZE
-    sub dx,bx
-    mov cx,dx
-CONCATSIGO:
-    push ds
-    pop es
-    pop si
-    pop ds
-    cld
-    rep movsb
-    mov al,'$'
-    mov BYTE PTR [DI],al
-    ret
-CONCAT ENDP
-
-
-
-
-START:
-; ******* CODIGO PERMANENTE ********
-    mov AX,@DATA
-    mov DS,AX
-    mov es,ax   
-; **********************************
-
-
-
-
-
-
-
-END START
+		FLD 	a	
+		FSTP	@aux8	
+		FLD 	j	
+		FSTP	@aux9	
+		FLD 	s	
+		FSTP	@aux10	
+		FLD 	5	
+		FSTP	@aux11	
+		FLD 	@aux10	
+		FMUL	@aux11	
+		FSTP	@aux12	
+		FLD 	@aux9	
+		FADD	@aux12	
+		FSTP	@aux13	
+		FLD 	a	
+		FSTP	@aux17	
+		FLD 	25	
+		FSTP	@aux18	
+		FLD 	i	
+		FSTP	@aux19	
+		FLD 	@aux18	
+		FMUL	@aux19	
+		FSTP	@aux20	
+		FLD 	@aux17	
+		FADD	@aux20	
+		FSTP	@aux21	
+		FLD 	3	
+		FSTP	@aux22	
+		FLD 	3	
+		FSTP	@aux26	
+		FLD 	b	
+		FSTP	@aux27	
+		FLD 	3	
+		FSTP	@aux31	
+		FLD 	b	
+		FSTP	@aux32	
+		FLD 	3	
+		FSTP	@aux36	
+		FLD 	b	
+		FSTP	@aux37	
+		FLD 	a	
+		FSTP	@aux39	
+		FLD 	b	
+		FSTP	@aux40	
+		FLD 	b	
+		FSTP	@aux45	
+		FLD 	5	
+		FSTP	@aux46	
+		FLD 	5	
+		FSTP	@aux48	
+		FLD 	c	
+		FSTP	@aux49	
+		FLD 	z2	
+		FSTP	@aux54	
+		FLD 	z3	
+		FSTP	@aux55	
+		FLD 	3	
+		FSTP	@aux59	
+		FLD 	b	
+		FSTP	@aux60	
+		FLD 	24	
+		FSTP	@aux70	
+		FLD 	b	
+		FSTP	@aux76	
+		FLD 	c	
+		FSTP	@aux81	
+		FLD 	d	
+		FSTP	@aux86	
+		FLD 	f	
+		FSTP	@aux91	
+		FLD 	g	
+		FSTP	@aux96	
+		FLD 	a	
+		FSTP	@aux101	
+		FLD 	a	
+		FSTP	@aux106	
+		FLD 	b	
+		FSTP	@aux107	
+		FLD 	a	
+		FSTP	@aux110	
+		FLD 	6	
+		FSTP	@aux111	
+		FLD 	j	
+		FSTP	@aux117	
+		FLD 	r	
+		FSTP	@aux118	
+		FLD 	123	
+		FSTP	@aux122	
+		FLD 	asd	
+		FSTP	@aux123	
+		FLD 	t	
+		FSTP	@aux128	
+		FLD 	3	
+		FSTP	@aux129	
