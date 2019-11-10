@@ -101,6 +101,7 @@ tipoTercetoAsm tercetoLeido[2048];
 char aux[10];
 char cteAux[50];
 char underscore[50];
+int indiceTerceto = 0;
 
 void generarAssembler(void);
 void crearTercetoAsm(int ind, char *varAux);
@@ -115,6 +116,7 @@ void generarAssembler();
 void imprimirVariablesASM(FILE *);
 void imprimirCabeceraASM(FILE *);
 void imprimirCabeceraCodeASM(FILE *);
+void recorrerTercetos(FILE *);
 void crearValor(FILE *);
 void crearFADD(FILE *);
 void crearFSUB(FILE *);
@@ -837,4 +839,8 @@ void crearFDIV(FILE *pf)
 void crearASIG(FILE *pf)
 {
 	char buffer[20];
+}
+
+void crearInstruccion(FILE *pf,char *c1,char *c2,char *c3, char *c4){
+  fprintf(pf, "%s\t%s\t%s\t%s\n", c1, c2, c3, c4);
 }
