@@ -9,96 +9,96 @@ MAXTEXTSIZE equ 50
 
 .DATA
 		FLD 	_a	
-		FSTP	@aux8 	
+		FSTP	@aux8	
 		FLD 	_j	
-		FSTP	@aux9 	
+		FSTP	@aux9	
 		FLD 	_s	
-		FSTP	@aux10 	
+		FSTP	@aux10	
 		FLD 	_5_50	
-		FSTP	@aux11 	
-		FLD 	@aux10 	
-		FMUL	@aux11 	
+		FSTP	@aux11	
+		FLD 	@aux10	
+		FMUL	@aux11	
 		FSTP	@aux12	
-		FLD 	@aux9 	
+		FLD 	@aux9	
 		FADD	@aux12	
 		FSTP	@aux13	
 		FLD 	_a	
-		FSTP	@aux17 	
+		FSTP	@aux17	
 		FLD 	_25	
-		FSTP	@aux18 	
+		FSTP	@aux18	
 		FLD 	_i	
-		FSTP	@aux19 	
-		FLD 	@aux18 	
-		FMUL	@aux19 	
+		FSTP	@aux19	
+		FLD 	@aux18	
+		FMUL	@aux19	
 		FSTP	@aux20	
-		FLD 	@aux17 	
+		FLD 	@aux17	
 		FADD	@aux20	
 		FSTP	@aux21	
 		FLD 	_3	
-		FSTP	@aux22 	
+		FSTP	@aux22	
 		FLD 	_3	
-		FSTP	@aux26 	
+		FSTP	@aux26	
 		FLD 	_b	
-		FSTP	@aux27 	
+		FSTP	@aux27	
 		FLD 	_3	
-		FSTP	@aux31 	
+		FSTP	@aux31	
 		FLD 	_b	
-		FSTP	@aux32 	
+		FSTP	@aux32	
 		FLD 	_3	
-		FSTP	@aux36 	
+		FSTP	@aux36	
 		FLD 	_b	
-		FSTP	@aux37 	
+		FSTP	@aux37	
 		FLD 	_a	
-		FSTP	@aux39 	
+		FSTP	@aux39	
 		FLD 	_b	
-		FSTP	@aux40 	
+		FSTP	@aux40	
 		FLD 	_b	
-		FSTP	@aux45 	
+		FSTP	@aux45	
 		FLD 	_5	
-		FSTP	@aux46 	
+		FSTP	@aux46	
 		FLD 	_5	
-		FSTP	@aux48 	
+		FSTP	@aux48	
 		FLD 	_c	
-		FSTP	@aux49 	
+		FSTP	@aux49	
 		FLD 	_z2	
-		FSTP	@aux54 	
+		FSTP	@aux54	
 		FLD 	_z3	
-		FSTP	@aux55 	
+		FSTP	@aux55	
 		FLD 	_3	
-		FSTP	@aux59 	
+		FSTP	@aux59	
 		FLD 	_b	
-		FSTP	@aux60 	
+		FSTP	@aux60	
 		FLD 	_24	
-		FSTP	@aux70 	
+		FSTP	@aux70	
 		FLD 	_b	
-		FSTP	@aux76 	
+		FSTP	@aux76	
 		FLD 	_c	
-		FSTP	@aux81 	
+		FSTP	@aux81	
 		FLD 	_d	
-		FSTP	@aux86 	
+		FSTP	@aux86	
 		FLD 	_f	
-		FSTP	@aux91 	
+		FSTP	@aux91	
 		FLD 	_g	
-		FSTP	@aux96 	
+		FSTP	@aux96	
 		FLD 	_a	
-		FSTP	@aux101 	
+		FSTP	@aux101	
 		FLD 	_a	
-		FSTP	@aux106 	
+		FSTP	@aux106	
 		FLD 	_b	
-		FSTP	@aux107 	
+		FSTP	@aux107	
 		FLD 	_a	
-		FSTP	@aux110 	
+		FSTP	@aux110	
 		FLD 	_6	
-		FSTP	@aux111 	
+		FSTP	@aux111	
 		FLD 	_j	
-		FSTP	@aux117 	
+		FSTP	@aux117	
 		FLD 	_r	
-		FSTP	@aux118 	
+		FSTP	@aux118	
 		FLD 	_123	
-		FSTP	@aux122 	
+		FSTP	@aux122	
 		FLD 	_asd	
-		FSTP	@aux123 	
+		FSTP	@aux123	
 		FLD 	_t	
-		FSTP	@aux128 	
+		FSTP	@aux128	
 		FLD 	_3	
-		FSTP	@aux129 	
+		FSTP	@aux129	
