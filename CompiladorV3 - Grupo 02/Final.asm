@@ -49,14 +49,16 @@ START:
 	mov DS,AX
 ; **********************************
 	mov es,ax
-		FLD 	_"HOLA"	
-		FSTP	_constante3	
+		FLD 	_2_00	
+		FSTP	_constante1	
+		FLD 	_0_5	
+		FSTP	_constante2	
 		FLD 	_a	
 		FSTP	_aa	
 		FLD 	_2147483_00	
 		FSTP	_d	
-		FLD 	_"ASD ASD AAASSD"	
-		FSTP	_string1	
+		FLD 	_2_00	
+		FSTP	_h2	
 		FLD 	_0_50	
 		FSTP	_p4	
 		FLD 	_a	
@@ -73,6 +75,12 @@ START:
 		FLD 	@aux9	
 		FADD	@aux12	
 		FSTP	@aux13	
+		FLD 	@aux8	
+		FCOMP	@aux13	
+		FSTSW	AX	
+		SAHF		
+		FLD 	_2_00	
+		FSTP	_aa	
 		FLD 	_a	
 		FSTP	@aux17	
 		FLD 	_25_00	
@@ -87,105 +95,176 @@ START:
 		FSTP	@aux21	
 		FLD 	_3_00	
 		FSTP	@aux22	
+		FLD 	@aux21	
+		FCOMP	@aux22	
+		FSTSW	AX	
+		SAHF		
+		FLD 	_2_00	
+		FSTP	_aa	
 		FLD 	_3_00	
 		FSTP	@aux26	
 		FLD 	_b	
 		FSTP	@aux27	
+		FLD 	@aux26	
+		FCOMP	@aux27	
+		FSTSW	AX	
+		SAHF		
+		FLD 	_2_00	
+		FSTP	_h2	
 		FLD 	_3_00	
 		FSTP	@aux31	
 		FLD 	_b	
 		FSTP	@aux32	
+		FLD 	@aux31	
+		FCOMP	@aux32	
+		FSTSW	AX	
+		SAHF		
+		FLD 	_2_00	
+		FSTP	_h2	
 		FLD 	_3_00	
 		FSTP	@aux36	
 		FLD 	_b	
 		FSTP	@aux37	
+		FLD 	@aux36	
+		FCOMP	@aux37	
+		FSTSW	AX	
+		SAHF		
 		FLD 	_a	
 		FSTP	@aux39	
 		FLD 	_b	
 		FSTP	@aux40	
+		FLD 	@aux39	
+		FCOMP	@aux40	
+		FSTSW	AX	
+		SAHF		
+		FLD 	_2_00	
+		FSTP	_h2	
 		FLD 	_b	
 		FSTP	@aux45	
 		FLD 	_5_00	
 		FSTP	@aux46	
+		FLD 	@aux45	
+		FCOMP	@aux46	
+		FSTSW	AX	
+		SAHF		
 		FLD 	_5_00	
 		FSTP	@aux48	
 		FLD 	_c	
 		FSTP	@aux49	
-		FLD 	_52_00	
-		FSTP	_b	
+		FLD 	@aux48	
+		FCOMP	@aux49	
+		FSTSW	AX	
+		SAHF		
 		FLD 	_z2	
 		FSTP	@aux54	
 		FLD 	_z3	
 		FSTP	@aux55	
-		FLD 	_125_00	
-		FSTP	_b	
+		FLD 	@aux54	
+		FCOMP	@aux55	
+		FSTSW	AX	
+		SAHF		
 		FLD 	_3_00	
 		FSTP	@aux59	
 		FLD 	_b	
 		FSTP	@aux60	
-		FLD 	_"1113333333"	
-		FSTP	_constante5	
+		FLD 	@aux59	
+		FCOMP	@aux60	
+		FSTSW	AX	
+		SAHF		
+		FLD 	_2_00	
+		FSTP	_h2	
 		FLD 	_24_00	
 		FSTP	@aux70	
 		FLD 	_a	
 		FSTP	@aux71	
+		FLD 	@aux70	
+		FCOMP	@aux71	
+		FSTSW	AX	
+		SAHF		
 		FLD 	@aux71	
 		FSTP	_auxFiltro	
-		FLD 	_[ 71 ]	
-		FSTP	__auxFiltro	
 		FLD 	_b	
 		FSTP	@aux76	
+		FLD 	@aux70	
+		FCOMP	@aux76	
+		FSTSW	AX	
+		SAHF		
 		FLD 	@aux76	
 		FSTP	_auxFiltro	
-		FLD 	_[ 76 ]	
-		FSTP	__auxFiltro	
 		FLD 	_c	
 		FSTP	@aux81	
+		FLD 	@aux70	
+		FCOMP	@aux81	
+		FSTSW	AX	
+		SAHF		
 		FLD 	@aux81	
 		FSTP	_auxFiltro	
-		FLD 	_[ 81 ]	
-		FSTP	__auxFiltro	
 		FLD 	_d	
 		FSTP	@aux86	
+		FLD 	@aux70	
+		FCOMP	@aux86	
+		FSTSW	AX	
+		SAHF		
 		FLD 	@aux86	
 		FSTP	_auxFiltro	
-		FLD 	_[ 86 ]	
-		FSTP	__auxFiltro	
 		FLD 	_f	
 		FSTP	@aux91	
+		FLD 	@aux70	
+		FCOMP	@aux91	
+		FSTSW	AX	
+		SAHF		
 		FLD 	@aux91	
 		FSTP	_auxFiltro	
-		FLD 	_[ 91 ]	
-		FSTP	__auxFiltro	
 		FLD 	_g	
 		FSTP	@aux96	
+		FLD 	@aux70	
+		FCOMP	@aux96	
+		FSTSW	AX	
+		SAHF		
 		FLD 	@aux96	
 		FSTP	_auxFiltro	
-		FLD 	_[ 96 ]	
-		FSTP	__auxFiltro	
 		FLD 	_a	
 		FSTP	@aux101	
-		FLD 	_3_00	
-		FSTP	_b	
-		FLD 	_5_00	
-		FSTP	_b	
+		FCOMP	@aux101	
+		FSTSW	AX	
+		SAHF		
 		FLD 	_a	
 		FSTP	@aux106	
 		FLD 	_b	
 		FSTP	@aux107	
+		FLD 	@aux106	
+		FCOMP	@aux107	
+		FSTSW	AX	
+		SAHF		
 		FLD 	_a	
 		FSTP	@aux110	
 		FLD 	_6_00	
 		FSTP	@aux111	
+		FLD 	@aux110	
+		FCOMP	@aux111	
+		FSTSW	AX	
+		SAHF		
 		FLD 	_j	
 		FSTP	@aux117	
 		FLD 	_r	
 		FSTP	@aux118	
+		FLD 	@aux117	
+		FCOMP	@aux118	
+		FSTSW	AX	
+		SAHF		
 		FLD 	_123_00	
 		FSTP	@aux122	
 		FLD 	_asd	
 		FSTP	@aux123	
+		FLD 	@aux122	
+		FCOMP	@aux123	
+		FSTSW	AX	
+		SAHF		
 		FLD 	_t	
 		FSTP	@aux128	
 		FLD 	_3_00	
 		FSTP	@aux129	
+		FLD 	@aux128	
+		FCOMP	@aux129	
+		FSTSW	AX	
+		SAHF		

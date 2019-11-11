@@ -125,6 +125,7 @@ void crearFSUB(FILE *);
 void crearFMUL(FILE *);
 void crearFDIV(FILE *);
 void crearASIG(FILE *);
+void crearCMP(FILE *);
 /***********************************************************************/
 
 
@@ -719,6 +720,11 @@ void recorrerTercetos(FILE *arch) {
       crearASIG(arch);
     }
 
+
+    if(strcmp(tablaTerceto[indiceTerceto].dato1, "CMP") == 0){
+      crearCMP(arch);
+    }
+
 	}
 }
 
@@ -795,6 +801,7 @@ void crearFADD(FILE *pf)
 	int i;
 	cad = strchr(tablaTerceto[indiceTerceto].dato2,'[');
 	cad+=2; // Salteo el espacio entre el corchete y el indice
+  printf("\n\n\n%d\n\n\n", atoi(cad));
 	crearInstruccion(pf, "\t", "FLD ", tercetoLeido[atoi(cad)].aux, "");
 	cad = strchr(tablaTerceto[indiceTerceto].dato3,'[');
 	cad+=2; // Salteo el espacio entre el corchete y el indice
@@ -884,14 +891,75 @@ void crearASIG(FILE *pf)
   }
 
 }
-/* NO ANDA BIEN, LEE MAL LAS VARIABLES POR ALGUN MOTIVO */
+
+void crearCMP(FILE *pf)
+{
+  char op1[50];
+  if(*(tablaTerceto[indiceTerceto].dato2) == '['){
+    strcpy(op1, tercetoLeido[atoi(tablaTerceto[indiceTerceto].dato2+1)].aux);
+    crearInstruccion(pf, "\t", "FLD ", op1, "");
+  } else
+    if(tipoElemento(tablaTerceto[indiceTerceto].dato2) == 1 || tipoElemento(tablaTerceto[indiceTerceto].dato2) == 2 ||
+        tipoElemento(tablaTerceto[indiceTerceto].dato2) == 4 || tipoElemento(tablaTerceto[indiceTerceto].dato2) == 5 ){
+          strcpy(op1, "_");
+          strcat(op1, tablaTerceto[indiceTerceto].dato2);
+          printf("\n\n%s\n\n",op1);
+          crearFloat(op1);
+          crearInstruccion(pf, "\t", "FLD ", op1, "");
+        }
+  if(*(tablaTerceto[indiceTerceto].dato3) == '['){
+    strcpy(op1, tercetoLeido[atoi(tablaTerceto[indiceTerceto].dato3+1)].aux);
+    crearInstruccion(pf, "\t", "FCOMP", op1, "");
+  }else
+    if(tipoElemento(tablaTerceto[indiceTerceto].dato3) == 1 || tipoElemento(tablaTerceto[indiceTerceto].dato3) == 2 ||
+        tipoElemento(tablaTerceto[indiceTerceto].dato3) == 4 || tipoElemento(tablaTerceto[indiceTerceto].dato3) == 5 ){
+          strcpy(op1, "_");
+          strcat(op1, tablaTerceto[indiceTerceto].dato3);
+          crearFloat(op1);
+          crearInstruccion(pf, "\t", "FCOMP", op1, "");
+        }
+  crearInstruccion(pf, "\t", "FSTSW","AX","");
+  crearInstruccion(pf, "\t", "SAHF", "","");
+}
+
+
+/* domingo 20hs:= NO ANDA BIEN, LEE MAL LAS VARIABLES POR ALGUN MOTIVO
+  lunes 2:12 hs:= creo que lo arregle
+*/
 int tipoElemento(char *elemento)
 {
   int i = 0;
   char auxVal[35] = "_";
-  while( strcmp(elemento, tablaId[i].valor) != 0 && i < 2048)
+  while(i < 2048)
+  {
+    if(strcmp(elemento, tablaId[i].valor) == 0){//es una constante
+      if(strcmp(tablaId[i].tipo, "CONST_INT") == 0){
+        return 1;
+      }else{
+        if(strcmp(tablaId[i].tipo, "CONST_FLOAT") == 0){
+          return 2;
+        }else{
+          if(strcmp(tablaId[i].tipo, "CONST_STRING") == 0){
+            return 3;
+          }
+        }
+      }
+    }else{
+      if(strcmp(tablaId[i].valor, "?") == 0){//Es una variable
+        if(strcmp(tablaId[i].nombre, elemento) == 0){
+          if(strcmp(tablaId[i].tipo, "INTEGER") == 0){
+            return 4;
+          }else{
+            if(strcmp(tablaId[i].tipo, "FLOAT") == 0){
+              return 5;
+            }
+          }
+        }
+      }
+    }
     i++;
-
+  }
+/*
   if(strcmp(tablaId[i].tipo, "CONST_INTEGER") == 0 )
   {
     crearFloat(strcat(auxVal, tablaId[i].valor));
@@ -921,7 +989,7 @@ int tipoElemento(char *elemento)
   {
     printf("%s es FLOAT\n", tablaId[i].nombre);
     return 5;
-  }
+  }*/
   return -1;
 }
 
