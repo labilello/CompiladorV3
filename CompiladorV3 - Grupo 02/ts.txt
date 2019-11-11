@@ -32,3 +32,4 @@ _123_00                       CONST_INTEGER                 123.00
 _"4"                          CONST_STRING                  "4"                           
 _"5"                          CONST_STRING                  "5"                           
 _"5b"                         CONST_STRING                  "5b"                          
+_auxFiltro                    INTEGER                       ?                             
