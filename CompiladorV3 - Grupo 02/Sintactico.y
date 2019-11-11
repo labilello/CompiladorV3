@@ -1075,7 +1075,7 @@ void crearOUTPUT(FILE *arch) {
 		crearInstruccion(arch, "\t", "displayString", strcat(subfijo, tablaId[buscarPorValor(tablaTerceto[indiceTerceto].dato2)].nombre), "");
 	}
 	else {
-		crearInstruccion(arch, "\t", "DisplayFloat", strcat(subfijo, tablaId[buscarPorValor(tablaTerceto[indiceTerceto].dato2)].nombre), "");
+		crearInstruccion(arch, "\t", "DisplayFloat", strcat(subfijo, tablaId[existeID(tablaTerceto[indiceTerceto].dato2)].nombre), ", 2");
 	}
 	
 	crearInstruccion(arch, "\t", "newLine", "", "");

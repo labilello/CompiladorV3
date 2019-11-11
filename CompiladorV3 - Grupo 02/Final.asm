@@ -18,6 +18,7 @@ MAXTEXTSIZE equ 50
 	_p4	dd	?
 	_h1	dd	?
 	_h2	dd	?
+	___ALTA_COMPILACION_PERRO_	db	"ALTA COMPILACION PERRO", "$"
 	_constante3	db	"HOLA", "$"
 	_auxFiltro	dd	?
 
@@ -30,7 +31,13 @@ START:
 ; **********************************
 ETQ_0:
 		GetFloat	_b	
+ETQ_1:
+		DisplayFloat	_b	, 2
+		newLine		
 ETQ_2:
+		displayString	___ALTA_COMPILACION_PERRO_	
+		newLine		
+ETQ_4:
 		mov ax, 4C00h
 		int 21h
 END START
