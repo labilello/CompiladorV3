@@ -233,7 +233,8 @@ varconstante		:	CTE_E
                     sprintf(valorConstante, "%0.2f", (double) yylval.intval);
                     strcpy(aux2, "INTEGER");
                     strcpy(cadAux, "_");
-                    insertarConstante(strcat(cadAux, valorConstante), "CONST_INTEGER", valorConstante);
+                    crearFloat(strcat(cadAux, valorConstante));
+                    insertarConstante(cadAux, "CONST_INTEGER", valorConstante);
                     /*toa(yylval.intval, valorConstante, 10); strcpy(aux2, "INTEGER");*/
                   }	|
 							    CTE_R
@@ -241,7 +242,8 @@ varconstante		:	CTE_E
                     sprintf(valorConstante, "%0.2f", (double) yylval.val);
                     strcpy(aux2,"FLOAT");
                     strcpy(cadAux, "_");
-                    insertarConstante(strcat(cadAux, valorConstante), "CONST_FLOAT", valorConstante);
+                    crearFloat(strcat(cadAux, valorConstante));
+                    insertarConstante(cadAux, "CONST_FLOAT", valorConstante);
                     /*gcvt(yylval.val, 10, valorConstante); strcpy(aux2, "FLOAT");*/
                   };
 
@@ -656,10 +658,10 @@ void imprimirCabeceraASM(FILE *arch) {
 	fprintf(arch, "include macros2.asm\n");
 	fprintf(arch, "include number.asm\n\n");
 	fprintf(arch, ".MODEL LARGE\n");
-	fprintf(arch, ".DATA\n");
 	fprintf(arch, ".STACK 200h\n\n");
 	fprintf(arch, ".386\n");
 	fprintf(arch, "MAXTEXTSIZE equ 50\n\n");
+	fprintf(arch, ".DATA\n");
 }
 
 void imprimirVariablesASM(FILE *arch) {
@@ -688,15 +690,14 @@ void recorrerTercetos(FILE *arch) {
 	// RECORRER LOS TERCETOS
 	for(indiceTerceto = 0; indiceTerceto < numeroTerceto; indiceTerceto++)
 	{
-		printf("indice: %d", indiceTerceto);
 		if(strcmp(tablaTerceto[indiceTerceto].dato2, "--") == 0 && strcmp(tablaTerceto[indiceTerceto].dato3, "--") == 0)
 		{
 		  crearValor(arch);
 
 		}
 		if(strcmp(tablaTerceto[indiceTerceto].dato1, "ADD") == 0)
-		  crearFADD(arch);
-		{
+	  {
+      crearFADD(arch);
 		}
 
 		if(strcmp(tablaTerceto[indiceTerceto].dato1, "SUB") == 0)
@@ -864,21 +865,64 @@ void crearASIG(FILE *pf)
     crearInstruccion(pf, "\t", op, cteAux, "");
     crearInstruccion(pf, "\t", "FSTP", tablaTerceto[indiceTerceto].dato2, "");
   }
-/*  if( true ){
-
+  if( tipoElemento(tablaTerceto[indiceTerceto].dato3) == 2 || tipoElemento(tablaTerceto[indiceTerceto].dato3) == 1){
+    strcpy(cteAux, "_");
+    strcat(cteAux, tablaTerceto[indiceTerceto].dato3);
+    crearFloat(cteAux);
+    crearInstruccion(pf, "\t", "FLD ", cteAux, "");
+    strcpy(cteAux, "_");
+    strcat(cteAux, tablaTerceto[indiceTerceto].dato2);
+    crearInstruccion(pf, "\t", "FSTP", cteAux, "");
   }
-*/
-}
+  if( tipoElemento(tablaTerceto[indiceTerceto].dato3) == 5 || tipoElemento(tablaTerceto[indiceTerceto].dato3) == 4){
+    strcpy(cteAux, "_");
+    strcat(cteAux, tablaTerceto[indiceTerceto].dato3);
+    crearInstruccion(pf, "\t", "FLD ", cteAux, "");
+    strcpy(cteAux, "_");
+    strcat(cteAux, tablaTerceto[indiceTerceto].dato2);
+    crearInstruccion(pf, "\t", "FSTP", cteAux, "");
+  }
 
+}
+/* NO ANDA BIEN, LEE MAL LAS VARIABLES POR ALGUN MOTIVO */
 int tipoElemento(char *elemento)
 {
   int i = 0;
-  while( strcmp(elemento, tablaId[i].valor) != 0 && i < 2048);
-  if(strcmp(tablaId[i].tipo, "CONST_INTEGER") == 0){ return 1; }
-  if(strcmp(tablaId[i].tipo, "CONST_FLOAT") == 0){ return 2; }
-  if(strcmp(tablaId[i].tipo, "CONST_STRING") == 0){ return 3; }
-  if(strcmp(tablaId[i].tipo, "INTEGER") == 0){ return 4; }
-  return 5;
+  char auxVal[35] = "_";
+  while( strcmp(elemento, tablaId[i].valor) != 0 && i < 2048)
+    i++;
+
+  if(strcmp(tablaId[i].tipo, "CONST_INTEGER") == 0 )
+  {
+    crearFloat(strcat(auxVal, tablaId[i].valor));
+    if(strcmp(auxVal, tablaId[i].nombre) == 0){
+      printf("%s es CONST_INTEGER\n", tablaId[i].nombre);
+      return 1;
+    }else{
+      return -1;
+    }
+  }
+  if(strcmp(tablaId[i].tipo, "CONST_FLOAT") == 0)
+  {
+    crearFloat(strcat(auxVal, tablaId[i].valor));
+    if(strcmp(auxVal, tablaId[i].nombre) == 0){
+      printf("%s es CONST_INTEGER\n", tablaId[i].nombre);
+      return 2;
+    }else{
+      return -1;
+    }
+  }
+  if(strcmp(tablaId[i].tipo, "INTEGER") != 0)
+  {
+    printf("%s es INTEGER\n", tablaId[i].nombre);
+    return 4;
+  }
+  if(strcmp(tablaId[i].tipo, "FLOAT") != 0)
+  {
+    printf("%s es FLOAT\n", tablaId[i].nombre);
+    return 5;
+  }
+  return -1;
 }
 
 void crearInstruccion(FILE *pf,char *c1,char *c2,char *c3, char *c4){
