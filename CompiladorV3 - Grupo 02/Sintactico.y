@@ -107,8 +107,8 @@ tipoTercetoAsm tercetoLeido[2048];
 
 void generarAssembler(void);
 void crearTercetoAsm(int ind, char *varAux);
-void crearFloat(char *); /* funcion para cambiar los puntos de una variable */
-int tipoElemento(char *); /* funcion para obtener el tipo del elemento
+void crearFloat(char *); /* funcion para cambiar los puntos de una variable
+int tipoElemento(char *); // funcion para obtener el tipo del elemento
                            float a un _ para poder llamarla como cte sin nombre */
 void crearInstruccion(FILE *,char *,char *,char *, char *);
 /* Condensa la funcion fprintf con un formato ""%s\t%s\t%s\t%s\n" */
@@ -621,12 +621,6 @@ void exportarTablas()
 
 	fprintf(ts, "NOMBRE\t\t\t\tTIPO\t\t\t\tVALOR\t\t\tLONGITUD\n");
 
-	strcpy(tablaId[numeroId].nombre, "_auxFiltro");
-	strcpy(tablaId[numeroId].tipo, "INTEGER");
-	strcpy(tablaId[numeroId].valor, "?");
-	strcpy(tablaId[numeroId].longitud, "");
-	numeroId++;
-	
 	for(i = 0; i < numeroId; i++) {
 		fprintf(ts, "%-30s%-30s%-30s%s\n", tablaId[i].nombre, tablaId[i].tipo, tablaId[i].valor, tablaId[i].longitud);
 	}
@@ -697,10 +691,6 @@ void recorrerTercetos(FILE *arch) {
 	// RECORRER LOS TERCETOS
 	for(indiceTerceto = 0; indiceTerceto < numeroTerceto; indiceTerceto++)
 	{
-		if((strcmp("=", tablaTerceto[indiceTerceto].dato1) == 0) && (tipoElemento(tablaTerceto[indiceTerceto].dato2) < 4)) { // ES UNA CONSTANTe
-			printf("SALTER CONSTANTE\n");
-			continue;
-		}
 		if(strcmp(tablaTerceto[indiceTerceto].dato2, "--") == 0 && strcmp(tablaTerceto[indiceTerceto].dato3, "--") == 0)
 		{
 		  crearValor(arch);

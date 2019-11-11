@@ -41,7 +41,6 @@ MAXTEXTSIZE equ 50
 	__"4"	db	"4", "$"
 	__"5"	db	"5", "$"
 	__"5b"	db	"5b", "$"
-	__auxFiltro	dd	?
 
 .CODE
 START:
@@ -50,6 +49,10 @@ START:
 	mov DS,AX
 ; **********************************
 	mov es,ax
+		FLD 	_2_00	
+		FSTP	_constante1	
+		FLD 	_0_5	
+		FSTP	_constante2	
 		FLD 	_a	
 		FSTP	_aa	
 		FLD 	_2147483_00	
@@ -222,7 +225,6 @@ START:
 		FSTP	_auxFiltro	
 		FLD 	_a	
 		FSTP	@aux101	
-		FLD 	__auxFiltro	
 		FCOMP	@aux101	
 		FSTSW	AX	
 		SAHF		
