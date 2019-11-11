@@ -13,8 +13,5 @@ asd/--
 ENDVAR
 
 READ b;
-READ "HOLA";
-PRINT b;
-PRINT "ALTA COMPILACION PERRO";
 
 CONST constante3 = "HOLA";
