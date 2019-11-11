@@ -11,7 +11,6 @@ echo "Compilacion en curso"
 c:\MinGW\bin\gcc.exe lex.yy.c y.tab.c -o Segunda.exe
 pause
 Segunda.exe Prueba.txt
-
 del lex.yy.c
 del y.tab.c
 del y.output

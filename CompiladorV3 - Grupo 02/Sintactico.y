@@ -118,7 +118,6 @@ void generarAssembler();
 void imprimirVariablesASM(FILE *);
 void imprimirCabeceraASM(FILE *);
 void imprimirCabeceraCodeASM(FILE *);
-void imprimirColaCodeASM(FILE *);
 void crearValor(FILE *);
 void recorrerTercetos(FILE *);
 void crearFADD(FILE *);
@@ -127,13 +126,6 @@ void crearFMUL(FILE *);
 void crearFDIV(FILE *);
 void crearASIG(FILE *);
 void crearCMP(FILE *);
-void crearINPUT(FILE *);
-void crearOUTPUT(FILE *);
-
-int esSalto(char *);
-void crearSalto(FILE *);
-void reemplazo(char *v, char c1, char c2);
-int buscarPorValor(char *id);
 /***********************************************************************/
 
 
@@ -520,7 +512,7 @@ char* negarSalto(char* operadorSalto)
 {
 	if (strcmp(operadorSalto, "JE") == 0) // IGUAL
 	{
-		return "JNE"; // DISTINTO
+		return "JEN"; // DISTINTO
 	}
 	if (strcmp(operadorSalto, "JNE") == 0) // DISTINTO
 	{
@@ -582,12 +574,6 @@ void insertarConstante(char* nombre, char* tipo, char* valor)
 {
 	char auxLongitud[31];
 
-	
-	reemplazo(nombre, (char)34, '_');
-	reemplazo(nombre, ' ', '_');
-	
-	printf("%s", nombre);
-
 	if(existeID(nombre) == -1) {
 		strcpy(tablaId[numeroId].nombre, nombre);
 		strcpy(tablaId[numeroId].tipo, tipo);
@@ -635,7 +621,7 @@ void exportarTablas()
 
 	fprintf(ts, "NOMBRE\t\t\t\tTIPO\t\t\t\tVALOR\t\t\tLONGITUD\n");
 
-	strcpy(tablaId[numeroId].nombre, "auxFiltro");
+	strcpy(tablaId[numeroId].nombre, "_auxFiltro");
 	strcpy(tablaId[numeroId].tipo, "INTEGER");
 	strcpy(tablaId[numeroId].valor, "?");
 	strcpy(tablaId[numeroId].longitud, "");
@@ -645,7 +631,7 @@ void exportarTablas()
 		fprintf(ts, "%-30s%-30s%-30s%s\n", tablaId[i].nombre, tablaId[i].tipo, tablaId[i].valor, tablaId[i].longitud);
 	}
 
-	
+
 	for(i = 0; i < numeroTerceto; i++) {
 		fprintf(intermedia, "|  %d  | ( %s, %s, %s )\n", tablaTerceto[i].indice, tablaTerceto[i].dato1, tablaTerceto[i].dato2, tablaTerceto[i].dato3);
 	}
@@ -671,7 +657,7 @@ void generarAssembler() {
 	recorrerTercetos(codAssembler);
 
 
-	imprimirColaCodeASM(codAssembler);
+
 	fclose(codAssembler);
 }
 
@@ -700,10 +686,10 @@ void imprimirCabeceraCodeASM(FILE *arch) {
 	fprintf(arch, "\n.CODE\n");
 	fprintf(arch, "START:\n");
 	fprintf(arch, "; ******* CODIGO PERMANENTE ********\n");
-	fprintf(arch, "\t\tmov AX,@DATA\n");
-	fprintf(arch, "\t\tmov DS,AX\n");
-	fprintf(arch, "\t\tmov es,ax\n");
+	fprintf(arch, "\tmov AX,@DATA\n");
+	fprintf(arch, "\tmov DS,AX\n");
 	fprintf(arch, "; **********************************\n");
+	fprintf(arch, "\tmov es,ax\n");
 
 }
 void recorrerTercetos(FILE *arch) {
@@ -715,63 +701,41 @@ void recorrerTercetos(FILE *arch) {
 			printf("SALTER CONSTANTE\n");
 			continue;
 		}
-		
-		fprintf(arch, "ETQ_%d:\n", tablaTerceto[indiceTerceto]);
-		
 		if(strcmp(tablaTerceto[indiceTerceto].dato2, "--") == 0 && strcmp(tablaTerceto[indiceTerceto].dato3, "--") == 0)
 		{
-			crearValor(arch);
+		  crearValor(arch);
 
 		}
 		if(strcmp(tablaTerceto[indiceTerceto].dato1, "ADD") == 0)
-		{
-			crearFADD(arch);
+	  {
+      crearFADD(arch);
 		}
 
 		if(strcmp(tablaTerceto[indiceTerceto].dato1, "SUB") == 0)
 		{
-			crearFSUB(arch);
+		  crearFSUB(arch);
 		}
 
 		{
 		if(strcmp(tablaTerceto[indiceTerceto].dato1, "MUL") == 0)
-			crearFMUL(arch);
+		  crearFMUL(arch);
 		}
 
 		if(strcmp(tablaTerceto[indiceTerceto].dato1, "DIV") == 0)
 		{
-			crearFDIV(arch);
+		  crearFDIV(arch);
 		}
 
-		if(strcmp(tablaTerceto[indiceTerceto].dato1, "=") == 0){
-			crearASIG(arch);
-		}
+    if(strcmp(tablaTerceto[indiceTerceto].dato1, "=") == 0){
+      crearASIG(arch);
+    }
 
 
-		if(strcmp(tablaTerceto[indiceTerceto].dato1, "CMP") == 0){
-			crearCMP(arch);
-		}
-			
-		if(esSalto(tablaTerceto[indiceTerceto].dato1) == 1) {
-			crearSalto(arch);
-		}
-		
-		if(strcmp(tablaTerceto[indiceTerceto].dato1, "input") == 0) {
-			crearINPUT(arch);
-		}
-		if(strcmp(tablaTerceto[indiceTerceto].dato1, "output") == 0) {
-			crearOUTPUT(arch);
-		}
-		
+    if(strcmp(tablaTerceto[indiceTerceto].dato1, "CMP") == 0){
+      crearCMP(arch);
+    }
 
 	}
-}
-
-void imprimirColaCodeASM(FILE *arch) {
-	fprintf(arch, "ETQ_%d:\n", indiceTerceto);
-	fprintf(arch, "\t\tmov ax, 4C00h\n");
-	fprintf(arch, "\t\tint 21h\n");
-	fprintf(arch, "END START");
 }
 
 void crearValor(FILE *pf)
@@ -1039,87 +1003,6 @@ int tipoElemento(char *elemento)
   return -1;
 }
 
-int esSalto(char *instruccion) {
-	
-	char saltos[9][10] = {"JE", "JNE", "JB", "JAE", "JA", "JBE", "JZ", "JNZ", "JMP"};
-
-	for(int i = 0; i < 9; i++) {
-		if(strcmp(instruccion, saltos[i]) == 0) {
-			return 1;
-		}
-		
-	}
-	
-	return 0;
-}
-
-void crearSalto(FILE *arch) {
-	char *cad;
-	char buffer[20];
-	int i;
-	cad = strchr(tablaTerceto[indiceTerceto].dato2,'[');
-	cad+=2; // Salteo el espacio entre el corchete y el indice
-	printf("\n\n\n%d\n\n\n", atoi(cad));
-
-	
-	sprintf(buffer, "ETQ_%d", atoi(cad));
-	crearInstruccion(arch, "\t", tablaTerceto[indiceTerceto].dato1, buffer, "");
-}
-
-void crearOUTPUT(FILE *arch) {
-	char subfijo[50] = "_";
-	
-	
-	
-	if(tipoElemento(tablaTerceto[indiceTerceto].dato2) == 3) { //SI ES STRING
-		crearInstruccion(arch, "\t", "displayString", strcat(subfijo, tablaId[buscarPorValor(tablaTerceto[indiceTerceto].dato2)].nombre), "");
-	}
-	else {
-		crearInstruccion(arch, "\t", "DisplayFloat", strcat(subfijo, tablaId[buscarPorValor(tablaTerceto[indiceTerceto].dato2)].nombre), "");
-	}
-	
-	crearInstruccion(arch, "\t", "newLine", "", "");
-	
-}
-
-void crearINPUT(FILE *arch) {
-	char subfijo[50] = "_";
-	/*if(tipoElemento(tablaTerceto[indiceTerceto].dato2) == 4) { //SI ES INTEGER
-		crearInstruccion(arch, "\t", "displayString", strcat(subfijo, tablaId[buscarPorValor(tablaTerceto[indiceTerceto].dato2)].nombre), "");
-	}*/
-	/*if (tipoElemento(tablaTerceto[indiceTerceto].dato2) == 5) {*/
-		crearInstruccion(arch, "\t", "GetFloat", strcat(subfijo, tablaId[existeID(tablaTerceto[indiceTerceto].dato2)].nombre), "");
-	/*}
-	else
-		printf("ERROR\n\n\n");
-	*/
-}	
-
 void crearInstruccion(FILE *pf,char *c1,char *c2,char *c3, char *c4){
-	fprintf(pf, "%s\t%s\t%s\t%s\n", c1, c2, c3, c4);
-}
-
-void reemplazo(char *v, char c1, char c2) {
-
-    int i;
-
-    for (i=0;v[i]!='\0';i++)
-    {
-        if (*(v+i)==c1)
-        {
-            *(v+i)=c2;
-        }
-    }
-
-}
-
-int buscarPorValor(char *id){
-	int i;
-	for(i = 0; i < numeroId; i++)
-	{
-		if(strcmp(tablaId[i].valor, id) == 0)
-			return i;
-	}
-	return -1;
-	
+  fprintf(pf, "%s\t%s\t%s\t%s\n", c1, c2, c3, c4);
 }
