@@ -12,7 +12,12 @@ asd/--
 
 ENDVAR
 
+READ b;
+READ a;
 
-CONST constante3 = "HOLA";
-b = 2;
-aa = 3.;
+IF(b!==5) {
+	PRINT "PRIMERO";
+	IF(a==3) {
+		PRINT "SEGUNDO";
+	}
+}
