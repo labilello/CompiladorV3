@@ -134,6 +134,7 @@ int esSalto(char *);
 void crearSalto(FILE *);
 void reemplazo(char *v, char c1, char c2);
 int buscarPorValor(char *id);
+int leerIndiceTercero(char *dato);
 
 int vec[2048];
 int vecRep[2048];
@@ -679,6 +680,7 @@ void generarAssembler() {
 }
 
 void imprimirCabeceraASM(FILE *arch) {
+	/***** LISTO *****/
 	fprintf(arch, "include macros2.asm\n");
 	fprintf(arch, "include number.asm\n\n");
 	fprintf(arch, ".MODEL LARGE\n");
@@ -705,6 +707,7 @@ void imprimirVariablesASM(FILE *arch) {
 }
 
 void imprimirCabeceraCodeASM(FILE *arch) {
+	/***** LISTO *****/
 	fprintf(arch, "\n.CODE\n");
 	fprintf(arch, "START:\n");
 	fprintf(arch, "; ******* CODIGO PERMANENTE ********\n");
@@ -715,35 +718,18 @@ void imprimirCabeceraCodeASM(FILE *arch) {
 
 }
 void recorrerTercetos(FILE *arch) {
+	
+	/***** 
+		FALTA:
+			- AND
+			- OR
+			- VER SALTOS
+			- REPEAT
 
-	int w=0;
-	for(w=0;w<2048;w++){
-		vec[w]=-1;
-	}
-	
-	int j=0;
-	for(j=0;j<2048;j++){
-		vecRep[j]=-1;
-	}
-	
-	for(j=0;j<2048;j++){
-		if(strcmp(tablaTerceto[j].dato1,"ETQ_REPEAT")==0){
-			fprintf(arch,"ETQ_REPEAT_%d\n",j);
-			vec[j]=-1;
-			vecRep[j] = j;
-		}	
-	}
-	
-	// RECORRER LOS TERCETOS
+	*****/
 	for(indiceTerceto = 0; indiceTerceto < numeroTerceto; indiceTerceto++)
 	{
-		if(vec[indiceTerceto]!=-1){
-			fprintf(arch,"ETQ_%d\n",indiceTerceto);
-		}
-		if(vecRep[indiceTerceto]!=-1){
-			fprintf(arch,"ETQ_REPEAT_%d\n",indiceTerceto);
-		}
-		
+	
 		if((strcmp("=", tablaTerceto[indiceTerceto].dato1) == 0) && (tipoElemento(tablaTerceto[indiceTerceto].dato2) < 4)) { // ES UNA CONSTANTe
 			printf("SALTER CONSTANTE: %d , %s , %s , %s\n", tablaTerceto[indiceTerceto].indice, tablaTerceto[indiceTerceto].dato1, tablaTerceto[indiceTerceto].dato2, tablaTerceto[indiceTerceto].dato3);
 			continue;
@@ -766,8 +752,8 @@ void recorrerTercetos(FILE *arch) {
 			crearFSUB(arch);
 		}
 
-		{
-		if(strcmp(tablaTerceto[indiceTerceto].dato1, "MUL") == 0)
+		
+		if(strcmp(tablaTerceto[indiceTerceto].dato1, "MUL") == 0){
 			crearFMUL(arch);
 		}
 
@@ -777,7 +763,6 @@ void recorrerTercetos(FILE *arch) {
 		}
 
 		if(strcmp(tablaTerceto[indiceTerceto].dato1, "=") == 0){
-			printf("ASIG: %d , %s , %s , %s\n", tablaTerceto[indiceTerceto].indice, tablaTerceto[indiceTerceto].dato1, tablaTerceto[indiceTerceto].dato2, tablaTerceto[indiceTerceto].dato3);
 			crearASIG(arch);
 		}
 
@@ -802,6 +787,8 @@ void recorrerTercetos(FILE *arch) {
 }
 
 void imprimirColaCodeASM(FILE *arch) {
+	
+	/***** LISTO *****/
 	fprintf(arch, "ETQ_%d:\n", indiceTerceto);
 	fprintf(arch, "\t\tmov ax, 4C00h\n");
 	fprintf(arch, "\t\tint 21h\n");
@@ -810,7 +797,7 @@ void imprimirColaCodeASM(FILE *arch) {
 
 void crearValor(FILE *arch)
 {
-	
+	/***** LISTO *****/
 	char buffer[50] = "_";
 	char p[10] = "FLD ";
 	
@@ -892,7 +879,19 @@ void crearFloat(char *valor){
 
 void crearFADD(FILE *pf)
 {
-	char *cad;
+	/***** LISTO *****/
+	
+	char subfijo[50];
+	sprintf(subfijo, "@aux%d", leerIndiceTercero(tablaTerceto[indiceTerceto].dato2));
+	crearInstruccion(pf, "\t", "FLD", subfijo, "");
+	sprintf(subfijo, "@aux%d", leerIndiceTercero(tablaTerceto[indiceTerceto].dato3));
+	crearInstruccion(pf, "\t", "FLD", subfijo, "");
+	crearInstruccion(pf, "\t", "FADD", "", "");
+	sprintf(subfijo, "@aux%d", tablaTerceto[indiceTerceto].indice);
+	crearInstruccion(pf, "\t", "FSTP", subfijo, "");
+	crearInstruccion(pf, "\t", "FFREE", "", "");
+	
+	/*char *cad;
 	char buffer[20];
 	int i;
 	cad = strchr(tablaTerceto[indiceTerceto].dato2,'[');
@@ -905,12 +904,23 @@ void crearFADD(FILE *pf)
 	strcpy(aux, "@aux");
 	strcat(aux, itoa(tablaTerceto[indiceTerceto].indice, buffer, 10));
 	strcpy(tercetoLeido[tablaTerceto[indiceTerceto].indice].aux, aux);
-	crearInstruccion(pf, "\t", "FSTP", aux, "");
+	crearInstruccion(pf, "\t", "FSTP", aux, "");*/
 }
 
 void crearFSUB(FILE *pf)
 {
-	char buffer[20];
+	
+	/***** LISTO *****/
+	char subfijo[50];
+	
+	sprintf(subfijo, "@aux%d", leerIndiceTercero(tablaTerceto[indiceTerceto].dato2));
+	crearInstruccion(pf, "\t", "FLD", subfijo, "");
+	sprintf(subfijo, "@aux%d", leerIndiceTercero(tablaTerceto[indiceTerceto].dato3));
+	crearInstruccion(pf, "\t", "FSUB", subfijo, "");
+	sprintf(subfijo, "@aux%d", tablaTerceto[indiceTerceto].indice);
+	crearInstruccion(pf, "\t", "FSTP", subfijo, "");
+	
+	/*char buffer[20];
 	char *cad;
 	int i;
 	cad = strchr(tablaTerceto[indiceTerceto].dato2,'[');
@@ -922,12 +932,22 @@ void crearFSUB(FILE *pf)
 	strcpy(aux, "@aux");
 	strcat(aux, itoa(tablaTerceto[indiceTerceto].indice, buffer, 10));
 	strcpy(tercetoLeido[tablaTerceto[indiceTerceto].indice].aux, aux);
-	crearInstruccion(pf, "\t", "FSTP", aux, "");
+	crearInstruccion(pf, "\t", "FSTP", aux, "");*/
 }
 
 void crearFMUL(FILE *pf)
 {
-	char buffer[20];
+	/***** LISTO *****/
+	char subfijo[50];
+	
+	sprintf(subfijo, "@aux%d", leerIndiceTercero(tablaTerceto[indiceTerceto].dato2));
+	crearInstruccion(pf, "\t", "FLD", subfijo, "");
+	sprintf(subfijo, "@aux%d", leerIndiceTercero(tablaTerceto[indiceTerceto].dato3));
+	crearInstruccion(pf, "\t", "FMUL", subfijo, "");
+	sprintf(subfijo, "@aux%d", tablaTerceto[indiceTerceto].indice);
+	crearInstruccion(pf, "\t", "FSTP", subfijo, "");
+	
+	/*char buffer[20];
 	char *cad;
 	int i;
 	cad = strchr(tablaTerceto[indiceTerceto].dato2,'[');
@@ -939,12 +959,21 @@ void crearFMUL(FILE *pf)
 	strcpy(aux, "@aux");
 	strcat(aux, itoa(tablaTerceto[indiceTerceto].indice, buffer, 10));
 	strcpy(tercetoLeido[tablaTerceto[indiceTerceto].indice].aux, aux);
-  crearInstruccion(pf, "\t", "FSTP", aux, "");
+	crearInstruccion(pf, "\t", "FSTP", aux, "");*/
 }
 
 void crearFDIV(FILE *pf)
 {
-	char buffer[20];
+	/***** LISTO *****/
+	char subfijo[50];
+	sprintf(subfijo, "@aux%d", leerIndiceTercero(tablaTerceto[indiceTerceto].dato2));
+	crearInstruccion(pf, "\t", "FLD", subfijo, "");
+	sprintf(subfijo, "@aux%d", leerIndiceTercero(tablaTerceto[indiceTerceto].dato3));
+	crearInstruccion(pf, "\t", "FDIV", subfijo, "");
+	sprintf(subfijo, "@aux%d", tablaTerceto[indiceTerceto].indice);
+	crearInstruccion(pf, "\t", "FSTP", subfijo, "");
+	
+	/*char buffer[20];
 	char *cad;
 	int i;
 	cad = strchr(tablaTerceto[indiceTerceto].dato2,'[');
@@ -956,11 +985,12 @@ void crearFDIV(FILE *pf)
 	strcpy(aux, "@aux");
 	strcat(aux, itoa(tablaTerceto[indiceTerceto].indice, buffer, 10));
 	strcpy(tercetoLeido[tablaTerceto[indiceTerceto].indice].aux, aux);
-  crearInstruccion(pf, "\t", "FSTP", aux, "");
+  crearInstruccion(pf, "\t", "FSTP", aux, "");*/
 }
 
 void crearASIG(FILE *arch)
 {
+	/***** LISTO *****/
 	char buffer[50] = "_";
 	char p[10] = "FLD ";
 	
@@ -1009,8 +1039,18 @@ void crearASIG(FILE *arch)
 
 void crearCMP(FILE *pf)
 {
-	char op1[50];
-	if(*(tablaTerceto[indiceTerceto].dato2) == '['){
+	/***** LISTO *****/
+	char subfijo[50];
+	
+	sprintf(subfijo, "@aux%d", leerIndiceTercero(tablaTerceto[indiceTerceto].dato2));
+	crearInstruccion(pf, "\t", "FLD", subfijo, "");
+	sprintf(subfijo, "@aux%d", leerIndiceTercero(tablaTerceto[indiceTerceto].dato3));
+	crearInstruccion(pf, "\t", "FCOMP", subfijo, "");
+	crearInstruccion(pf, "\t", "FSTSW", "ax", "");
+	crearInstruccion(pf, "\t", "SAHF", "", "");
+	
+	
+	/*if(*(tablaTerceto[indiceTerceto].dato2) == '['){
 		strcpy(op1, tercetoLeido[atoi(tablaTerceto[indiceTerceto].dato2+1)].aux);
 		crearInstruccion(pf, "\t", "FLD ", op1, "");
 	} else
@@ -1031,11 +1071,11 @@ void crearCMP(FILE *pf)
         tipoElemento(tablaTerceto[indiceTerceto].dato3) == 4 || tipoElemento(tablaTerceto[indiceTerceto].dato3) == 5 ){
         strcpy(op1, "_");
         strcat(op1, tablaTerceto[indiceTerceto].dato3);
-        crearFloat(op1);
+          crearFloat(op1);
         crearInstruccion(pf, "\t", "FCOMP", op1, "");
     }
 	crearInstruccion(pf, "\t", "FSTSW","AX","");
-	crearInstruccion(pf, "\t", "SAHF", "","");
+	crearInstruccion(pf, "\t", "SAHF", "","");*/
 }
 
 
@@ -1115,7 +1155,7 @@ int tipoElemento(char *elemento)
 }
 
 int esSalto(char *instruccion) {
-	
+	/***** LISTO *****/
 	char saltos[9][10] = {"JE", "JNE", "JNAE", "JNA", "JNBE", "JNB", "JZ", "JNZ", "JMP"};
 
 	for(int i = 0; i < 9; i++) {
@@ -1128,7 +1168,8 @@ int esSalto(char *instruccion) {
 	return 0;
 }
 
-/*void crearSalto(FILE *arch) {
+void crearSalto(FILE *arch) {
+	/***** REVISAR *****/
 	char *cad;
 	char buffer[20];
 	int i;
@@ -1139,31 +1180,12 @@ int esSalto(char *instruccion) {
 	
 	sprintf(buffer, "ETQ_%d", atoi(cad));
 	crearInstruccion(arch, "\t", tablaTerceto[indiceTerceto].dato1, buffer, "");
-}*/
-
-void crearSalto(FILE *arch) {
-	char *cad;
-	char buffer[20];
-	int i;
-	cad = strchr(tablaTerceto[indiceTerceto].dato2,'[');
-	cad+=2; // Salteo el espacio entre el corchete y el indice
-	printf("\n\n\n%d\n\n\n", atoi(cad));
-	if(vecRep[atoi(cad)]!=-1)
-	{
-		sprintf(buffer, "ETQ_REPEAT%d", atoi(cad));
-		crearInstruccion(arch, "\t", tablaTerceto[indiceTerceto].dato1, buffer, "");
-
-	}
-	else{
-		vec[atoi(cad)]=atoi(cad);
-		sprintf(buffer, "ETQ_%d", atoi(cad));
-		crearInstruccion(arch, "\t", tablaTerceto[indiceTerceto].dato1, buffer, "");
-	}
 }
+
 
 void crearOUTPUT(FILE *arch) {
 	char subfijo[50] = "_";
-	
+	/***** LISTO *****/
 	
 	
 	if(tipoElemento(tablaTerceto[indiceTerceto].dato2) == 3) { //SI ES STRING
@@ -1179,6 +1201,7 @@ void crearOUTPUT(FILE *arch) {
 
 void crearINPUT(FILE *arch) {
 	char subfijo[50] = "_";
+	/***** LISTO *****/
 	/*if(tipoElemento(tablaTerceto[indiceTerceto].dato2) == 4) { //SI ES INTEGER
 		crearInstruccion(arch, "\t", "displayString", strcat(subfijo, tablaId[buscarPorValor(tablaTerceto[indiceTerceto].dato2)].nombre), "");
 	}*/
@@ -1191,11 +1214,12 @@ void crearINPUT(FILE *arch) {
 }	
 
 void crearInstruccion(FILE *pf,char *c1,char *c2,char *c3, char *c4){
+	/***** LISTO *****/
 	fprintf(pf, "%s\t%s\t%s\t%s\n", c1, c2, c3, c4);
 }
 
 void reemplazo(char *v, char c1, char c2) {
-
+	/***** LISTO *****/
     int i;
 
     for (i=0;v[i]!='\0';i++)
@@ -1209,6 +1233,7 @@ void reemplazo(char *v, char c1, char c2) {
 }
 
 int buscarPorValor(char *id){
+	/***** LISTO *****/
 	int i;
 	for(i = 0; i < numeroId; i++)
 	{
@@ -1217,6 +1242,14 @@ int buscarPorValor(char *id){
 	}
 	return -1;
 	
+}
+
+int leerIndiceTercero(char *dato){
+	/***** LISTO *****/
+	char *puntero;
+	puntero = strrchr(dato, '[');
+	
+	return atoi(puntero+2);
 }
 
 

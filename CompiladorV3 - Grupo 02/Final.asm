@@ -144,7 +144,6 @@ START:
 		mov DS,AX
 		mov es,ax
 ; **********************************
-ETQ_REPEAT_64
 ETQ_3:
 		FLD	_a	
 		FSTP	_aa	
@@ -170,24 +169,25 @@ ETQ_11:
 		FLD	__5_00	
 		FSTP	@aux11	
 ETQ_12:
-		FLD 		
-		FMUL		
+		FLD	@aux10	
+		FMUL	@aux11	
 		FSTP	@aux12	
 ETQ_13:
-		FLD 		
-		FADD	@aux12	
+		FLD	@aux9	
+		FLD	@aux12	
+		FADD		
 		FSTP	@aux13	
+		FFREE		
 ETQ_14:
-		FLD 		
+		FLD	@aux8	
 		FCOMP	@aux13	
-		FSTSW	AX	
+		FSTSW	ax	
 		SAHF		
 ETQ_15:
 		JNB	ETQ_17	
 ETQ_16:
 		FLD	_constante1	
 		FSTP	_aa	
-ETQ_17
 ETQ_17:
 		FLD	_a	
 		FSTP	@aux17	
@@ -198,27 +198,28 @@ ETQ_19:
 		FLD	_h1	
 		FSTP	@aux19	
 ETQ_20:
-		FLD 		
-		FMUL		
+		FLD	@aux18	
+		FMUL	@aux19	
 		FSTP	@aux20	
 ETQ_21:
-		FLD 		
-		FADD	@aux20	
+		FLD	@aux17	
+		FLD	@aux20	
+		FADD		
 		FSTP	@aux21	
+		FFREE		
 ETQ_22:
 		FLD	__3_00	
 		FSTP	@aux22	
 ETQ_23:
-		FLD 	@aux21	
-		FCOMP		
-		FSTSW	AX	
+		FLD	@aux21	
+		FCOMP	@aux22	
+		FSTSW	ax	
 		SAHF		
 ETQ_24:
 		JNA	ETQ_26	
 ETQ_25:
 		FLD	_constante1	
 		FSTP	_aa	
-ETQ_26
 ETQ_26:
 		FLD	__3_00	
 		FSTP	@aux26	
@@ -226,9 +227,9 @@ ETQ_27:
 		FLD	_b	
 		FSTP	@aux27	
 ETQ_28:
-		FLD 		
-		FCOMP		
-		FSTSW	AX	
+		FLD	@aux26	
+		FCOMP	@aux27	
+		FSTSW	ax	
 		SAHF		
 ETQ_29:
 ETQ_30:
@@ -241,16 +242,15 @@ ETQ_32:
 		FLD	_b	
 		FSTP	@aux32	
 ETQ_33:
-		FLD 		
-		FCOMP		
-		FSTSW	AX	
+		FLD	@aux31	
+		FCOMP	@aux32	
+		FSTSW	ax	
 		SAHF		
 ETQ_34:
 		JNAE	ETQ_36	
 ETQ_35:
 		FLD	_constante1	
 		FSTP	_h2	
-ETQ_36
 ETQ_36:
 		FLD	__3_00	
 		FSTP	@aux36	
@@ -258,9 +258,9 @@ ETQ_37:
 		FLD	_b	
 		FSTP	@aux37	
 ETQ_38:
-		FLD 		
-		FCOMP		
-		FSTSW	AX	
+		FLD	@aux36	
+		FCOMP	@aux37	
+		FSTSW	ax	
 		SAHF		
 ETQ_39:
 		FLD	_a	
@@ -269,9 +269,9 @@ ETQ_40:
 		FLD	_b	
 		FSTP	@aux40	
 ETQ_41:
-		FLD 		
-		FCOMP		
-		FSTSW	AX	
+		FLD	@aux39	
+		FCOMP	@aux40	
+		FSTSW	ax	
 		SAHF		
 ETQ_42:
 ETQ_43:
@@ -279,7 +279,6 @@ ETQ_43:
 ETQ_44:
 		FLD	_constante1	
 		FSTP	_h2	
-ETQ_45
 ETQ_45:
 		FLD	_b	
 		FSTP	@aux45	
@@ -287,9 +286,9 @@ ETQ_46:
 		FLD	__5_00	
 		FSTP	@aux46	
 ETQ_47:
-		FLD 		
-		FCOMP		
-		FSTSW	AX	
+		FLD	@aux45	
+		FCOMP	@aux46	
+		FSTSW	ax	
 		SAHF		
 ETQ_48:
 		FLD	__5_00	
@@ -298,9 +297,9 @@ ETQ_49:
 		FLD	_	
 		FSTP	@aux49	
 ETQ_50:
-		FLD 		
-		FCOMP		
-		FSTSW	AX	
+		FLD	@aux48	
+		FCOMP	@aux49	
+		FSTSW	ax	
 		SAHF		
 ETQ_51:
 ETQ_52:
@@ -315,16 +314,15 @@ ETQ_55:
 		FLD	_	
 		FSTP	@aux55	
 ETQ_56:
-		FLD 		
-		FCOMP		
-		FSTSW	AX	
+		FLD	@aux54	
+		FCOMP	@aux55	
+		FSTSW	ax	
 		SAHF		
 ETQ_57:
 		JNAE	ETQ_59	
 ETQ_58:
 		FLD	__125_00	
 		FSTP	_b	
-ETQ_59
 ETQ_59:
 		FLD	__3_00	
 		FSTP	@aux59	
@@ -332,15 +330,14 @@ ETQ_60:
 		FLD	_b	
 		FSTP	@aux60	
 ETQ_61:
-		FLD 		
-		FCOMP		
-		FSTSW	AX	
+		FLD	@aux59	
+		FCOMP	@aux60	
+		FSTSW	ax	
 		SAHF		
 ETQ_62:
 ETQ_63:
 		FLD	_constante1	
 		FSTP	_h2	
-ETQ_REPEAT_64
 ETQ_64:
 ETQ_65:
 		FLD	__3_00	
@@ -355,12 +352,12 @@ ETQ_68:
 		FLD	_b	
 		FSTP	@aux68	
 ETQ_69:
-		FLD 		
-		FCOMP		
-		FSTSW	AX	
+		FLD	@aux67	
+		FCOMP	@aux68	
+		FSTSW	ax	
 		SAHF		
 ETQ_70:
-		JNB	ETQ_REPEAT64	
+		JNB	ETQ_64	
 ETQ_71:
 		FLD	_a	
 		FSTP	@aux71	
@@ -368,9 +365,9 @@ ETQ_72:
 		FLD	__6_00	
 		FSTP	@aux72	
 ETQ_73:
-		FLD 		
-		FCOMP		
-		FSTSW	AX	
+		FLD	@aux71	
+		FCOMP	@aux72	
+		FSTSW	ax	
 		SAHF		
 ETQ_74:
 		JNE	ETQ_77	
@@ -379,11 +376,9 @@ ETQ_75:
 		newLine		
 ETQ_76:
 		JMP	ETQ_78	
-ETQ_77
 ETQ_77:
 		displayString	___2_	
 		newLine		
-ETQ_78
 ETQ_78:
 		FLD	_	
 		FSTP	@aux78	
@@ -391,9 +386,9 @@ ETQ_79:
 		FLD	_	
 		FSTP	@aux79	
 ETQ_80:
-		FLD 		
-		FCOMP		
-		FSTSW	AX	
+		FLD	@aux78	
+		FCOMP	@aux79	
+		FSTSW	ax	
 		SAHF		
 ETQ_81:
 		JNE	ETQ_96	
@@ -407,9 +402,9 @@ ETQ_84:
 		FLD	_	
 		FSTP	@aux84	
 ETQ_85:
-		FLD 		
-		FCOMP		
-		FSTSW	AX	
+		FLD	@aux83	
+		FCOMP	@aux84	
+		FSTSW	ax	
 		SAHF		
 ETQ_86:
 		JNA	ETQ_89	
@@ -418,7 +413,6 @@ ETQ_87:
 		newLine		
 ETQ_88:
 		JMP	ETQ_95	
-ETQ_89
 ETQ_89:
 		FLD	_	
 		FSTP	@aux89	
@@ -426,9 +420,9 @@ ETQ_90:
 		FLD	__3_00	
 		FSTP	@aux90	
 ETQ_91:
-		FLD 		
-		FCOMP		
-		FSTSW	AX	
+		FLD	@aux89	
+		FCOMP	@aux90	
+		FSTSW	ax	
 		SAHF		
 ETQ_92:
 		JNAE	ETQ_95	
@@ -438,10 +432,8 @@ ETQ_93:
 ETQ_94:
 		displayString	___5b_	
 		newLine		
-ETQ_95
 ETQ_95:
 		JMP	ETQ_97	
-ETQ_96
 ETQ_96:
 		displayString	___4_	
 		newLine		
