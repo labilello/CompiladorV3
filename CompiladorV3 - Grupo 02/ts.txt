@@ -16,6 +16,8 @@ i7                            INTEGER                       ?
 constante1                    CONST_INTEGER                 2.00                          
 __F1__                        CONST_STRING                  "F1 "                         
 __F2__                        CONST_STRING                  "F2 "                         
-__IGUALES_                    CONST_STRING                  "IGUALES"                     
-__F1_MENOR_                   CONST_STRING                  "F1 MENOR"                    
+_3_00                         CONST_FLOAT                   3.00                          
+_5_00                         CONST_INTEGER                 5.00                          
+_10_00                        CONST_INTEGER                 10.00                         
+_15_00                        CONST_INTEGER                 15.00                         
 auxFiltro                     INTEGER                       ?                             

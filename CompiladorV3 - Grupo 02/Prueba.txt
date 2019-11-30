@@ -12,17 +12,21 @@ ENDVAR
 
 CONST constante1 = 2;
 PRINT "F1 ";
-READ f1;
+READ i1;
 PRINT "F2 ";
 READ f2;
 
 
-IF(f1 >= f2){
-	IF(f1 == f2) {
-		PRINT "IGUALES";
-	}
-}
-ELSE {
-	PRINT "F1 MENOR";
-}
+REPEAT
+	f1=3.;
+	i1=5;
+	REPEAT
+	
+		PRINT f1;
+		PRINT i1;
+		READ i3;
+	UNTIL(i3>10);
+	
+	READ i2;
+UNTIL(i2 >= 15);
 

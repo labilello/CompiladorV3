@@ -129,6 +129,7 @@ void crearASIG(FILE *);
 void crearCMP(FILE *);
 void crearINPUT(FILE *);
 void crearOUTPUT(FILE *);
+void crearRepeat(FILE *);
 
 int esSalto(char *);
 void crearSalto(FILE *);
@@ -271,13 +272,13 @@ decision			:		C_IF_A PARENTESIS_A condicion PARENTESIS_C LLAVE_A bloqprograma LL
 							C_IF_E LLAVE_A bloqprograma LLAVE_C	{modificarTerceto(desapilar(&pilaPos), 0);}	;
 
 bucle				:		C_REPEAT_A
-							{	indice_repeat = crearTerceto("ETQ_REPEAT", "", "");
+							{	indice_repeat = crearTerceto(";ETQ_REPEAT", "", "");
 								apilar(&pilaRepeat, indice_repeat);
 
 							}
 							bloqprograma C_REPEAT_C PARENTESIS_A condicion PARENTESIS_C PYC
 							{
-								modificarTerceto(numeroTerceto-1, (-1)*(numeroTerceto - desapilar(&pilaRepeat) ));
+								modificarTerceto(numeroTerceto-1, (-1)*(numeroTerceto - desapilar(&pilaRepeat) - 1));
 
 							};
 
@@ -373,9 +374,11 @@ termino				:		factor { indice_termino = indice_factor; }				|
 							}	;
 
 factor				:		ID
-							{	//if(existeID(yylval.str_val))
+							{	if(existeID(yylval.str_val) != -1){
 									indice_factor = crearTerceto(yylval.str_val,"--","--");
-								/*SINO ERROR PORQUE NO EXISTE*/
+								} else { /*SINO ERROR PORQUE NO EXISTE*/
+									yyerror("SINTAX ERROR: ID no declarado anteriormente");
+								}
 							}				|
 							varconstante {indice_factor = crearTerceto(valorConstante, "--", "--");}	|
 							PARENTESIS_A expresion PARENTESIS_C {indice_factor = indice_expresion;}	;
@@ -389,16 +392,20 @@ imprimir			:		PRINT CTE_S {
 								insertarConstante(strcat(aux1, yylval.str_val), "CONST_STRING", yylval.str_val);
 							}	PYC	|
 							PRINT ID {
-								//if(existeID(yylval.str_val))
+								if(existeID(yylval.str_val) != -1) {
 									strcpy(aux1, yylval.str_val);
 									indice_out = crearTerceto("output", aux1, "--");
-								/*SINO ERROR PORQUE NO EXISTE*/
+								} else {/*SINO ERROR PORQUE NO EXISTE*/
+									yyerror("SINTAX ERROR: ID no declarado anteriormente");
+								}
 							}	PYC	;
 leer				:		READ ID	{
-								//if(existeID(yylval.str_val))
+								if(existeID(yylval.str_val) != -1) {
 									strcpy(aux1, yylval.str_val);
 									indice_in = crearTerceto("input", aux1, "--");
-								/*SINO ERROR PORQUE NO EXISTE*/
+								} else {/*SINO ERROR PORQUE NO EXISTE*/
+									yyerror("SINTAX ERROR: ID no declarado anteriormente");
+								}
 							}	PYC	;
 
 filtro				:		C_FILTER PARENTESIS_A condfiltro COMA CORCHETE_A listvarfiltro CORCHETE_C PARENTESIS_C
@@ -414,7 +421,7 @@ condfiltro			:		C_FILTER_REFENTEROS op_comparacion expresion ;
 							C_FILTER_REFENTEROS op_comparacion expresion_i OP_LOGICO_OR C_FILTER_REFENTEROS op_comparacion expresion_d ;
 */
 listvarfiltro		:		listvarfiltro COMA ID
-							{	//if(existeID(yylval.str_val))
+							{	if(existeID(yylval.str_val) != -1) {
 									strcpy(aux1, yylval.str_val);
 									indice_filtro = crearTerceto(aux1, "--", "--");
 
@@ -430,10 +437,12 @@ listvarfiltro		:		listvarfiltro COMA ID
 									crearTerceto("=", "_auxFiltro", aux1);
 									crearTerceto("JMP", "", "");
 									apilar(&pilaFiltro, numeroTerceto-1);
-								/*SINO ERROR PORQUE NO EXISTE*/
+								} else {/*SINO ERROR PORQUE NO EXISTE*/
+									yyerror("SINTAX ERROR: ID no declarado anteriormente");
+								}
 							}	|
 							ID
-							{	//if(existeID(yylval.str_val))
+							{	if(existeID(yylval.str_val) != -1) {
 									strcpy(aux1, yylval.str_val);
 									indice_filtro = crearTerceto(aux1, "--", "--");
 
@@ -449,7 +458,9 @@ listvarfiltro		:		listvarfiltro COMA ID
 									crearTerceto("=", "_auxFiltro", aux1);
 									crearTerceto("JMP", "", "");
 									apilar(&pilaFiltro, numeroTerceto-1);
-								/*SINO ERROR PORQUE NO EXISTE*/
+								} else {/*SINO ERROR PORQUE NO EXISTE*/
+									yyerror("SINTAX ERROR: ID no declarado anteriormente");
+								}
 							}	;
 
 
@@ -782,6 +793,11 @@ void recorrerTercetos(FILE *arch) {
 			crearOUTPUT(arch);
 		}
 		
+		if(strcmp(tablaTerceto[indiceTerceto].dato1, ";ETQ_REPEAT") == 0) {
+			crearRepeat(arch);
+		}
+		
+		
 
 	}
 }
@@ -1076,6 +1092,10 @@ void crearCMP(FILE *pf)
     }
 	crearInstruccion(pf, "\t", "FSTSW","AX","");
 	crearInstruccion(pf, "\t", "SAHF", "","");*/
+}
+
+void crearRepeat(FILE *pf){
+	crearInstruccion(pf, "\t", tablaTerceto[indiceTerceto].dato1, "", "");
 }
 
 
