@@ -23,6 +23,7 @@ MAXTEXTSIZE equ 50
 	_i6	dd	?
 	_i7	dd	?
 <<<<<<< HEAD
+<<<<<<< HEAD
 	_constante1	dd	2.00
 <<<<<<< Updated upstream
 	___F1__	db	"F1 ", "$"
@@ -33,6 +34,11 @@ MAXTEXTSIZE equ 50
 	__15_00	dd	15.00
 =======
 	___OK_	db	"OK", "$"
+>>>>>>> master
+=======
+	___1_	db	"1", "$"
+	___2_	db	"2", "$"
+	__24_00	dd	24.00
 >>>>>>> master
 	_auxFiltro	dd	?
 	@aux0	dd	?
@@ -47,6 +53,9 @@ MAXTEXTSIZE equ 50
 	@aux9	dd	?
 	@aux10	dd	?
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> master
 	@aux11	dd	?
 	@aux12	dd	?
 	@aux13	dd	?
@@ -57,6 +66,7 @@ MAXTEXTSIZE equ 50
 	@aux18	dd	?
 	@aux19	dd	?
 	@aux20	dd	?
+<<<<<<< HEAD
 =======
 	_constante2	dd	0.5
 	_HOLA	db	"HOLA", $
@@ -83,6 +93,20 @@ MAXTEXTSIZE equ 50
 >>>>>>> Stashed changes
 =======
 >>>>>>> master
+=======
+	@aux21	dd	?
+	@aux22	dd	?
+	@aux23	dd	?
+	@aux24	dd	?
+	@aux25	dd	?
+	@aux26	dd	?
+	@aux27	dd	?
+	@aux28	dd	?
+	@aux29	dd	?
+	@aux30	dd	?
+	@aux31	dd	?
+	@aux32	dd	?
+>>>>>>> master
 
 .CODE
 START:
@@ -95,40 +119,47 @@ START:
 <<<<<<< Updated upstream
 =======
 ETQ_0:
+<<<<<<< HEAD
 		FLD	_f1	
 		FSTP	@aux0	
 >>>>>>> master
+=======
+		;ETQ_REPEAT		
+>>>>>>> master
 ETQ_1:
-		FLD	_f2	
-		FSTP	@aux1	
-ETQ_2:
-		FLD	@aux0	
-		FCOMP	@aux1	
-		FSTSW	ax	
-		SAHF		
-ETQ_3:
-		JNA	ETQ_11	
-ETQ_4:
-		JNBE	ETQ_10	
-ETQ_5:
-		FLD	_f3	
-		FSTP	@aux5	
-ETQ_6:
-		FLD	_f4	
-		FSTP	@aux6	
-ETQ_7:
-		FLD	@aux5	
-		FCOMP	@aux6	
-		FSTSW	ax	
-		SAHF		
-ETQ_8:
-		JNB	ETQ_11	
-ETQ_9:
-		JNAE	ETQ_10	
-ETQ_10:
-		displayString	___OK_	
+		displayString	___1_	
 		newLine		
+ETQ_2:
+		displayString	___2_	
+		newLine		
+ETQ_3:
+		FLD	__24_00	
+		FSTP	@aux3	
+ETQ_4:
+		FLD	_i1	
+		FSTP	@aux4	
+ETQ_5:
+		FLD	@aux4	
+		FCOMP	@aux3	
+		FSTSW	ax	
+		SAHF		
+ETQ_6:
+		JNB	ETQ_9	
+ETQ_7:
+		FLD	@aux4	
+		FSTP	_auxFiltro	
+ETQ_8:
+		JMP	ETQ_29	
+ETQ_9:
+		FLD	_i2	
+		FSTP	@aux9	
+ETQ_10:
+		FLD	@aux9	
+		FCOMP	@aux3	
+		FSTSW	ax	
+		SAHF		
 ETQ_11:
+<<<<<<< HEAD
 <<<<<<< HEAD
 		GetFloat	_i3	
 ETQ_12:
@@ -199,6 +230,73 @@ ETQ_20:
 		JNAE	ETQ_6	
 ETQ_21:
 =======
+>>>>>>> master
+=======
+		JNB	ETQ_14	
+ETQ_12:
+		FLD	@aux9	
+		FSTP	_auxFiltro	
+ETQ_13:
+		JMP	ETQ_29	
+ETQ_14:
+		FLD	_i3	
+		FSTP	@aux14	
+ETQ_15:
+		FLD	@aux14	
+		FCOMP	@aux3	
+		FSTSW	ax	
+		SAHF		
+ETQ_16:
+		JNB	ETQ_19	
+ETQ_17:
+		FLD	@aux14	
+		FSTP	_auxFiltro	
+ETQ_18:
+		JMP	ETQ_29	
+ETQ_19:
+		FLD	_i4	
+		FSTP	@aux19	
+ETQ_20:
+		FLD	@aux19	
+		FCOMP	@aux3	
+		FSTSW	ax	
+		SAHF		
+ETQ_21:
+		JNB	ETQ_24	
+ETQ_22:
+		FLD	@aux19	
+		FSTP	_auxFiltro	
+ETQ_23:
+		JMP	ETQ_29	
+ETQ_24:
+		FLD	_i5	
+		FSTP	@aux24	
+ETQ_25:
+		FLD	@aux24	
+		FCOMP	@aux3	
+		FSTSW	ax	
+		SAHF		
+ETQ_26:
+		JNB	ETQ_29	
+ETQ_27:
+		FLD	@aux24	
+		FSTP	_auxFiltro	
+ETQ_28:
+		JMP	ETQ_29	
+ETQ_29:
+		FLD	_i6	
+		FSTP	@aux29	
+ETQ_30:
+		FLD	_auxFiltro	
+		FSTP	@aux30	
+ETQ_31:
+		FLD	@aux30	
+		FCOMP	@aux29	
+		FSTSW	ax	
+		SAHF		
+ETQ_32:
+		JE	ETQ_1	
+ETQ_33:
 >>>>>>> master
 		mov ax, 4C00h
 		int 21h

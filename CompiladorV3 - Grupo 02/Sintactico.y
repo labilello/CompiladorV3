@@ -107,7 +107,6 @@ char aux[10];
 char cteAux[50];
 tipoTercetoAsm tercetoLeido[2048];
 
-void generarAssembler(void);
 void crearTercetoAsm(int ind, char *varAux);
 void crearFloat(char *); /* funcion para cambiar los puntos de una variable */
 int tipoElemento(char *); /* funcion para obtener el tipo del elemento
@@ -132,6 +131,7 @@ void crearCMP(FILE *);
 void crearINPUT(FILE *);
 void crearOUTPUT(FILE *);
 void crearRepeat(FILE *);
+void crearAuxFiltro(FILE *);
 
 int esSalto(char *);
 void crearSalto(FILE *);
@@ -270,6 +270,9 @@ decision			:		C_IF_A PARENTESIS_A condicion PARENTESIS_C LLAVE_A bloqprograma LL
 							}	|
 							C_IF_A PARENTESIS_A condicion PARENTESIS_C LLAVE_A bloqprograma LLAVE_C
 							{	modificarTerceto(desapilar(&pilaPos), 1);
+								if(condicionDoble == 1)
+									modificarTerceto(desapilar(&pilaPos), 1);
+								
 								indice_if = crearTerceto("JMP", "", "");
 								apilar(&pilaPos, indice_if);
 							}
@@ -290,11 +293,13 @@ condicion			:		comparacion
 							{	sprintf(aux1, "[ %d ]", indice_comparacion);
 								indice_condicion = crearTerceto(opSalto, aux1, "--");
 								apilar(&pilaPos, indice_condicion);
+								condicionDoble = 0;
 							}	|
 							OP_NEGACION PARENTESIS_A comparacion PARENTESIS_C
 							{	sprintf(aux1, "[ %d ]", indice_comparacion);
 								indice_condicion = crearTerceto(negarSalto(opSalto), aux1, "");
 								apilar(&pilaPos, indice_condicion);
+								condicionDoble = 0;
 							}	|
 							comparacion_i OP_LOGICO_AND comparacion_d
 							{	/*sprintf(aux1, "[ %d ]", indice_comparacionI);
@@ -308,9 +313,9 @@ condicion			:		comparacion
 								apilar(&pilaPos, indice_condicion);*/
 								condicionDoble = 1;
 							}	|
-							comparacion_i 	{	printf("CREANDO TERCETO - OPSALTO: %s - NEGADO: %s\n", opSalto, negarSalto(opSalto));
+							comparacion_i 	{	modificarTerceto(indice_comparacionI, 1);
+												desapilar(&pilaPos);
 												indice_condicion = crearTerceto(negarSalto(opSalto), "RESERVADO", "--");
-												printf("APILADO %d\n", indice_condicion);
 												apilar(&pilaOr, indice_condicion); 
 												
 											}
@@ -324,14 +329,14 @@ condicion			:		comparacion
 
 								indice_condicion = crearTerceto("JZ", aux1, "");
 								apilar(&pilaPos, indice_condicion);*/
-								printf("CREANDO TERCETO - OPSALTO: %s - NEGADO: %s\n", opSalto, negarSalto(opSalto));
+								//printf("CREANDO TERCETO - OPSALTO: %s - NEGADO: %s\n", opSalto, negarSalto(opSalto));
 								indice_condicion = crearTerceto(negarSalto(opSalto), "RESERVADO", "--");
-								printf("APILADO %d\n", indice_condicion);
+								//printf("APILADO %d\n", indice_condicion);
 								apilar(&pilaOr, indice_condicion); 
 								
 								modificarTerceto(desapilar(&pilaOr), 0);
 								modificarTerceto(desapilar(&pilaOr), 0);
-								condicionDoble = 1;
+								condicionDoble = 0;
 							}	;
 
 comparacion_i		:		comparacion { 	//indice_comparacionI = indice_comparacion+1;
@@ -357,7 +362,10 @@ comparacion			:		expresion_i op_comparacion expresion_d
 							filtro op_comparacion expresion_d
 							{	sprintf(aux2, "[ %d ]", indice_condicionD);
 
-								indice_comparacion = crearTerceto("CMP", "_auxFiltro", aux2);
+								crearTerceto("auxFiltro", "--", "--");
+								sprintf(aux1, "[ %d ]", numeroTerceto-1);
+								
+								indice_comparacion = crearTerceto("CMP", aux1, aux2);
 							}	;
 
 
@@ -456,15 +464,17 @@ listvarfiltro		:		listvarfiltro COMA ID
 
 									sprintf(aux1, "[ %d ]", indice_expresion);
 									sprintf(aux2, "[ %d ]", numeroTerceto-1);
-									crearTerceto("CMP", aux1, aux2);
+
+									crearTerceto("CMP", aux2, aux1);
 
 									sprintf(aux1, "[ %d ]", numeroTerceto+3);
 									crearTerceto(negarSalto(opSalto), aux1, "");
 
 									sprintf(aux1, "[ %d ]", numeroTerceto-3);
 
-									crearTerceto("=", "_auxFiltro", aux1);
+									crearTerceto("=", "auxFiltro", aux1);
 									crearTerceto("JMP", "", "");
+									
 									apilar(&pilaFiltro, numeroTerceto-1);
 								} else {/*SINO ERROR PORQUE NO EXISTE*/
 									yyerror("SINTAX ERROR: ID no declarado anteriormente");
@@ -477,14 +487,14 @@ listvarfiltro		:		listvarfiltro COMA ID
 
 									sprintf(aux1, "[ %d ]", indice_expresion);
 									sprintf(aux2, "[ %d ]", numeroTerceto-1);
-									crearTerceto("CMP", aux1, aux2);
+									crearTerceto("CMP", aux2, aux1);
 
 									sprintf(aux1, "[ %d ]", numeroTerceto+3);
 									crearTerceto(negarSalto(opSalto), aux1, "");
 
 									sprintf(aux1, "[ %d ]", numeroTerceto-3);
 
-									crearTerceto("=", "_auxFiltro", aux1);
+									crearTerceto("=", "auxFiltro", aux1);
 									crearTerceto("JMP", "", "");
 									apilar(&pilaFiltro, numeroTerceto-1);
 								} else {/*SINO ERROR PORQUE NO EXISTE*/
@@ -521,8 +531,7 @@ int main(int argc,char *argv[]){
 	fclose(yyin);
 
 
-  generarAssembler();
-	return 0;
+ 	return 0;
 }
 
 int yyerror(char * mensaje){
@@ -624,7 +633,7 @@ void insertarConstante(char* nombre, char* tipo, char* valor)
 	reemplazo(nombre, (char)34, '_');
 	reemplazo(nombre, ' ', '_');
 	
-	printf("%s", nombre);
+	//printf("%s", nombre);
 
 	if(existeID(nombre) == -1) {
 		strcpy(tablaId[numeroId].nombre, nombre);
@@ -776,68 +785,96 @@ void recorrerTercetos(FILE *arch) {
 	*****/
 	for(indiceTerceto = 0; indiceTerceto < numeroTerceto; indiceTerceto++)
 	{
+		
+		
 	
-		if((strcmp("=", tablaTerceto[indiceTerceto].dato1) == 0) && (tipoElemento(tablaTerceto[indiceTerceto].dato2) < 4)) { // ES UNA CONSTANTe
+		if(((strcmp("=", tablaTerceto[indiceTerceto].dato1) == 0) && (tipoElemento(tablaTerceto[indiceTerceto].dato2) < 4)) && strcmp(tablaTerceto[indiceTerceto].dato2, "auxFiltro") != 0) { // ES UNA CONSTANTe
 			printf("SALTER CONSTANTE: %d , %s , %s , %s\n", tablaTerceto[indiceTerceto].indice, tablaTerceto[indiceTerceto].dato1, tablaTerceto[indiceTerceto].dato2, tablaTerceto[indiceTerceto].dato3);
 			continue;
 		}
 		
 		fprintf(arch, "ETQ_%d:\n", tablaTerceto[indiceTerceto]);
 		
+		if(strcmp(tablaTerceto[indiceTerceto].dato2, "auxFiltro") == 0){
+			
+			crearAuxFiltro(arch);
+			continue;
+		}
+		
 		if(strcmp(tablaTerceto[indiceTerceto].dato2, "--") == 0 && strcmp(tablaTerceto[indiceTerceto].dato3, "--") == 0)
 		{
+			printf("CREAR VALOR - %d\n", indiceTerceto);
 			crearValor(arch);
+			continue;
 
 		}
 		if(strcmp(tablaTerceto[indiceTerceto].dato1, "ADD") == 0)
 		{
+			printf("CREAR ADD - %d\n", indiceTerceto);
 			crearFADD(arch);
+			continue;
 		}
 
 		if(strcmp(tablaTerceto[indiceTerceto].dato1, "SUB") == 0)
 		{
+			printf("CREAR SUB - %d\n", indiceTerceto);
 			crearFSUB(arch);
+			continue;
 		}
 
 		
 		if(strcmp(tablaTerceto[indiceTerceto].dato1, "MUL") == 0){
+			printf("CREAR MUL - %d\n", indiceTerceto);
 			crearFMUL(arch);
+			continue;
 		}
 
 		if(strcmp(tablaTerceto[indiceTerceto].dato1, "DIV") == 0)
 		{
+			printf("CREAR DIV - %d\n", indiceTerceto);
 			crearFDIV(arch);
+			continue;
 		}
 				if(esSalto(tablaTerceto[indiceTerceto].dato1) == 1) {
 			crearSalto(arch);
 		}
 
 		if(strcmp(tablaTerceto[indiceTerceto].dato1, "=") == 0){
+			printf("CREAR ASIG - %d\n", indiceTerceto);
 			crearASIG(arch);
+			continue;
 		}
 
 
 		if(strcmp(tablaTerceto[indiceTerceto].dato1, "CMP") == 0){
+			printf("CREAR CMP - %d\n", indiceTerceto);
 			crearCMP(arch);
+			continue;
 		}
 			
 		if(esSalto(tablaTerceto[indiceTerceto].dato1) == 1) {
+			printf("CREAR SALTO - %d\n", indiceTerceto);
 			crearSalto(arch);
+			continue;
 		}
 		
 		if(strcmp(tablaTerceto[indiceTerceto].dato1, "input") == 0) {
+			printf("CREAR INPUT - %d\n", indiceTerceto);
 			crearINPUT(arch);
+			continue;
 		}
 		if(strcmp(tablaTerceto[indiceTerceto].dato1, "output") == 0) {
+			printf("CREAR OUTPUT - %d\n", indiceTerceto);
 			crearOUTPUT(arch);
+			continue;
 		}
 		
 		if(strcmp(tablaTerceto[indiceTerceto].dato1, ";ETQ_REPEAT") == 0) {
+			printf("CREAR REPEAT - %d\n", indiceTerceto);
 			crearRepeat(arch);
+			continue;
 		}
 		
-		
-
 	}
 
 	fprintf(arch,"mov ah,4ch\n" );
@@ -1124,6 +1161,18 @@ void crearASIG(FILE *arch)
 */
 }
 
+void crearAuxFiltro(FILE *arch){
+
+	char buffer[50];
+	char p[10] = "FLD ";
+	
+	sprintf(buffer, "@aux%d", leerIndiceTercero(tablaTerceto[indiceTerceto].dato3));
+	
+	crearInstruccion(arch, "\t", "FLD", buffer, "");
+	strcpy(buffer, "_");
+	crearInstruccion(arch, "\t", "FSTP", strcat(buffer, tablaTerceto[indiceTerceto].dato2), "");
+}
+
 void crearCMP(FILE *pf)
 {
 	/***** LISTO *****/
@@ -1136,7 +1185,7 @@ void crearCMP(FILE *pf)
 	crearInstruccion(pf, "\t", "FSTSW", "ax", "");
 	crearInstruccion(pf, "\t", "SAHF", "", "");
 	
-	
+	printf("FIN CMP\n");
 	/*if(*(tablaTerceto[indiceTerceto].dato2) == '['){
 		strcpy(op1, tercetoLeido[atoi(tablaTerceto[indiceTerceto].dato2+1)].aux);
 		crearInstruccion(pf, "\t", "FLD ", op1, "");
@@ -1237,7 +1286,7 @@ void crearSalto(FILE *arch) {
 	int i;
 	cad = strchr(tablaTerceto[indiceTerceto].dato2,'[');
 	cad+=2; // Salteo el espacio entre el corchete y el indice
-	printf("\n\n\n%d\n\n\n", atoi(cad));
+	//printf("\n\n\n%d\n\n\n", atoi(cad));
 
 	
 	sprintf(buffer, "ETQ_%d", atoi(cad));

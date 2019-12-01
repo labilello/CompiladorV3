@@ -10,7 +10,8 @@ asd/--
 ENDVAR
 
 
-IF(f1 > f2 OR f3 < f4){
-	PRINT "OK";
-}
+REPEAT
+		PRINT "1";
+		PRINT "2";
+UNTIL(FILTER(_>=24,[i1,i2,i3,i4,i5])!==i6);
 
