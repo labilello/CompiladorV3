@@ -133,6 +133,8 @@ void crearOUTPUT(FILE *);
 void crearRepeat(FILE *);
 void crearAuxFiltro(FILE *);
 
+char *sacarComillas(char *, char *);
+char *sacarComillaConst(char *, char*);
 int esSalto(char *);
 void crearSalto(FILE *);
 void reemplazo(char *v, char c1, char c2);
@@ -629,23 +631,23 @@ void insertarConstante(char* nombre, char* tipo, char* valor)
 {
 	char auxLongitud[31];
 
-	
-	reemplazo(nombre, (char)34, '_');
+	//reemplazo(nombre, (char)34, '_');
+	sacarComillaConst(nombre, nombre);
 	reemplazo(nombre, ' ', '_');
-	
 	//printf("%s", nombre);
 
 	if(existeID(nombre) == -1) {
 		strcpy(tablaId[numeroId].nombre, nombre);
 		strcpy(tablaId[numeroId].tipo, tipo);
 		strcpy(tablaId[numeroId].valor, valor);
-		if(strcmp(tipo, "STRING") == 0){
+		if(strcmp(tipo, "CONST_STRING") == 0){
 			sprintf(tablaId[numeroId].longitud, "%d", strlen(tablaId[numeroId].valor) - 2);
 		}
 		else
 			strcpy(tablaId[numeroId].longitud, "");
 
 		numeroId++;
+
 	}
 	/* SINO ERROR PORQUE YA EXISTE*/
 
@@ -735,15 +737,19 @@ void imprimirCabeceraASM(FILE *arch) {
 
 void imprimirVariablesASM(FILE *arch) {
   int i;
-	char subfijo[50];
+  char subfijo[50];
   char cadena[20];
+  char buffer[20];
+  char buffer2[20];
 
 	for(i = 0; i < numeroId; i++) {
 		strcpy(subfijo, "_");
 
-		fprintf(arch, "\t%s\t%s\t%s", strcat(subfijo, ((strstr(tablaId[i].tipo, "STRING")!= NULL )?sacarComillas(tablaId[i].valor, cadena):(tablaId[i].nombre))), 
-                                        (strstr(tablaId[i].tipo, "STRING")!= NULL ? "db" : "dd"), tablaId[i].valor);
-		fprintf(arch, "%s\n" , (strstr(tablaId[i].tipo, "STRING")!= NULL ? ", $" : ""));
+		fprintf(arch, "\t%s\t%s\t%s", strcat(subfijo, ((strstr(tablaId[i].tipo, "CONST_STRING")!= NULL )?sacarComillas(tablaId[i].valor, cadena):(tablaId[i].nombre))), 
+                                        (strstr(tablaId[i].tipo, "CONST_STRING")!= NULL ? "db" : "dd"), tablaId[i].valor);
+
+		strcpy(buffer, ", ");
+		fprintf(arch, "%s\n" , (strstr(tablaId[i].tipo, "CONST_STRING")!= NULL ? strcat(buffer, tablaId[i].longitud) : ""));
 	}
 	
 	for(i = 0; i < numeroTerceto; i++) {
@@ -876,6 +882,8 @@ void recorrerTercetos(FILE *arch) {
 		}
 		
 	}
+
+	fprintf(arch, "ETQ_%d:\n", indiceTerceto);
 
 	fprintf(arch,"mov ah,4ch\n" );
     fprintf(arch,"mov al,0\n" );
@@ -1263,13 +1271,12 @@ int tipoElemento(char *elemento)
 
   return -1;
 }
-int esSalto(char *instruccion) {
 
 int esSalto(char *instruccion) {
 	/***** LISTO *****/
 	char saltos[9][10] = {"JE", "JNE", "JNAE", "JNA", "JNBE", "JNB", "JZ", "JNZ", "JMP"};
-
-	for(int i = 0; i < 9; i++) {
+	int i;
+	for(i = 0; i < 9; i++) {
 		if(strcmp(instruccion, saltos[i]) == 0) {
 			return 1;
 		}
@@ -1295,7 +1302,7 @@ void crearSalto(FILE *arch) {
 
 
 void crearOUTPUT(FILE *arch) {
-	char subfijo[50] = "_";
+	char subfijo[50] = "";
 	/***** LISTO *****/
 	
 	
@@ -1327,6 +1334,22 @@ void crearINPUT(FILE *arch) {
 void crearInstruccion(FILE *pf,char *c1,char *c2,char *c3, char *c4){
 	/***** LISTO *****/
 	fprintf(pf, "%s\t%s\t%s\t%s\n", c1, c2, c3, c4);
+}
+
+
+char *sacarComillaConst(char *val, char *esc){
+	int i;
+	char *sal = esc;
+    for (i=0; val[i] != '\0';i++)
+    {
+        if (val[i] != '\"')
+        {
+            *esc = val[i];
+            esc++;
+        }
+    }
+    *(esc) = '\0';
+    return sal;
 }
 
 void reemplazo(char *v, char c1, char c2) {
