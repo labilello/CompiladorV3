@@ -22,13 +22,7 @@ MAXTEXTSIZE equ 50
 	_i5	dd	?
 	_i6	dd	?
 	_i7	dd	?
-	_constante1	dd	2.00
-	___F1__	db	"F1 ", "$"
-	___F2__	db	"F2 ", "$"
-	__3_00	dd	3.00
-	__5_00	dd	5.00
-	__10_00	dd	10.00
-	__15_00	dd	15.00
+	___OK_	db	"OK", "$"
 	_auxFiltro	dd	?
 	@aux0	dd	?
 	@aux1	dd	?
@@ -41,16 +35,6 @@ MAXTEXTSIZE equ 50
 	@aux8	dd	?
 	@aux9	dd	?
 	@aux10	dd	?
-	@aux11	dd	?
-	@aux12	dd	?
-	@aux13	dd	?
-	@aux14	dd	?
-	@aux15	dd	?
-	@aux16	dd	?
-	@aux17	dd	?
-	@aux18	dd	?
-	@aux19	dd	?
-	@aux20	dd	?
 
 .CODE
 START:
@@ -59,63 +43,40 @@ START:
 		mov DS,AX
 		mov es,ax
 ; **********************************
+ETQ_0:
+		FLD	_f1	
+		FSTP	@aux0	
 ETQ_1:
-		displayString	___F1__	
-		newLine		
+		FLD	_f2	
+		FSTP	@aux1	
 ETQ_2:
-		GetFloat	_i1	
+		FLD	@aux0	
+		FCOMP	@aux1	
+		FSTSW	ax	
+		SAHF		
 ETQ_3:
-		displayString	___F2__	
-		newLine		
+		JNA	ETQ_11	
 ETQ_4:
-		GetFloat	_f2	
+		JNBE	ETQ_10	
 ETQ_5:
-		;ETQ_REPEAT		
+		FLD	_f3	
+		FSTP	@aux5	
 ETQ_6:
-		FLD	__3_00	
-		FSTP	_f1	
+		FLD	_f4	
+		FSTP	@aux6	
 ETQ_7:
-		FLD	__5_00	
-		FSTP	_i1	
+		FLD	@aux5	
+		FCOMP	@aux6	
+		FSTSW	ax	
+		SAHF		
 ETQ_8:
-		;ETQ_REPEAT		
+		JNB	ETQ_11	
 ETQ_9:
-		DisplayFloat	_f1	, 2
-		newLine		
+		JNAE	ETQ_10	
 ETQ_10:
-		DisplayFloat	_i1	, 2
+		displayString	___OK_	
 		newLine		
 ETQ_11:
-		GetFloat	_i3	
-ETQ_12:
-		FLD	_i3	
-		FSTP	@aux12	
-ETQ_13:
-		FLD	__10_00	
-		FSTP	@aux13	
-ETQ_14:
-		FLD	@aux12	
-		FCOMP	@aux13	
-		FSTSW	ax	
-		SAHF		
-ETQ_15:
-		JNA	ETQ_9	
-ETQ_16:
-		GetFloat	_i2	
-ETQ_17:
-		FLD	_i2	
-		FSTP	@aux17	
-ETQ_18:
-		FLD	__15_00	
-		FSTP	@aux18	
-ETQ_19:
-		FLD	@aux17	
-		FCOMP	@aux18	
-		FSTSW	ax	
-		SAHF		
-ETQ_20:
-		JNAE	ETQ_6	
-ETQ_21:
 		mov ax, 4C00h
 		int 21h
 END START

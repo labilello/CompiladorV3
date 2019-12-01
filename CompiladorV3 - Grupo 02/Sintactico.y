@@ -18,6 +18,7 @@ void exportarTablas();
 t_pila pilaPos;
 t_pila pilaRepeat;
 t_pila pilaFiltro;
+t_pila pilaOr;
 /**********************************/
 
 /************* ELEMENTOS NECESARIOS PARA TERCERTOS ********/
@@ -33,6 +34,7 @@ regTerceto terceto;
 regTerceto tablaTerceto[2048];
 
 int numeroTerceto = 0;
+int condicionDoble = 0;
 char valorConstante[50];
 char aux1[31], aux2[31], opSalto[6];
 
@@ -263,6 +265,8 @@ varconstante		:	CTE_E
 
 decision			:		C_IF_A PARENTESIS_A condicion PARENTESIS_C LLAVE_A bloqprograma LLAVE_C
 							{	modificarTerceto(desapilar(&pilaPos), 0);
+								if(condicionDoble == 1)
+									modificarTerceto(desapilar(&pilaPos), 0);
 							}	|
 							C_IF_A PARENTESIS_A condicion PARENTESIS_C LLAVE_A bloqprograma LLAVE_C
 							{	modificarTerceto(desapilar(&pilaPos), 1);
@@ -293,7 +297,7 @@ condicion			:		comparacion
 								apilar(&pilaPos, indice_condicion);
 							}	|
 							comparacion_i OP_LOGICO_AND comparacion_d
-							{	sprintf(aux1, "[ %d ]", indice_comparacionI);
+							{	/*sprintf(aux1, "[ %d ]", indice_comparacionI);
 								sprintf(aux2, "[ %d ]", indice_comparacionD);
 
 								indice_condicion = crearTerceto("AND", aux1, aux2);
@@ -301,10 +305,17 @@ condicion			:		comparacion
 								sprintf(aux1, "[ %d ]", numeroTerceto);
 
 								indice_condicion = crearTerceto("JZ", aux1, "");
-								apilar(&pilaPos, indice_condicion);
+								apilar(&pilaPos, indice_condicion);*/
+								condicionDoble = 1;
 							}	|
-							comparacion_i OP_LOGICO_OR comparacion_d
-							{	sprintf(aux1, "[ %d ]", indice_comparacionI);
+							comparacion_i 	{	printf("CREANDO TERCETO - OPSALTO: %s - NEGADO: %s\n", opSalto, negarSalto(opSalto));
+												indice_condicion = crearTerceto(negarSalto(opSalto), "RESERVADO", "--");
+												printf("APILADO %d\n", indice_condicion);
+												apilar(&pilaOr, indice_condicion); 
+												
+											}
+							OP_LOGICO_OR comparacion_d
+							{	/*sprintf(aux1, "[ %d ]", indice_comparacionI);
 								sprintf(aux2, "[ %d ]", indice_comparacionD);
 
 								indice_condicion = crearTerceto("OR", aux1, aux2);
@@ -312,11 +323,29 @@ condicion			:		comparacion
 								sprintf(aux1, "[ %d ]", numeroTerceto);
 
 								indice_condicion = crearTerceto("JZ", aux1, "");
-								apilar(&pilaPos, indice_condicion);
+								apilar(&pilaPos, indice_condicion);*/
+								printf("CREANDO TERCETO - OPSALTO: %s - NEGADO: %s\n", opSalto, negarSalto(opSalto));
+								indice_condicion = crearTerceto(negarSalto(opSalto), "RESERVADO", "--");
+								printf("APILADO %d\n", indice_condicion);
+								apilar(&pilaOr, indice_condicion); 
+								
+								modificarTerceto(desapilar(&pilaOr), 0);
+								modificarTerceto(desapilar(&pilaOr), 0);
+								condicionDoble = 1;
 							}	;
 
-comparacion_i		:		comparacion { indice_comparacionI = indice_comparacion; } ;
-comparacion_d		:		comparacion { indice_comparacionD = indice_comparacion; } ;
+comparacion_i		:		comparacion { 	//indice_comparacionI = indice_comparacion+1;
+											//sprintf(aux1, "[ %d ]", indice_comparacionI);
+											indice_comparacionI = crearTerceto(opSalto, "RESERVADO", "--");
+											apilar(&pilaPos, indice_comparacionI);
+
+
+										} ;
+comparacion_d		:		comparacion {	//indice_comparacionD = indice_comparacion+1;
+											//sprintf(aux1, "[ %d ]", indice_comparacionI);
+											indice_comparacionD = crearTerceto(opSalto, "RESERVADO", "--");
+											apilar(&pilaPos, indice_comparacionD);
+										} ;
 
 
 comparacion			:		expresion_i op_comparacion expresion_d
@@ -483,6 +512,7 @@ int main(int argc,char *argv[]){
 	crearPila(&pilaPos);
 	crearPila(&pilaRepeat);
 	crearPila(&pilaFiltro);
+	crearPila(&pilaOr);
 	/* ****************************************** */
 
 
@@ -533,37 +563,30 @@ void mostrarTerceto()
 
 char* negarSalto(char* operadorSalto)
 {
-	if (strcmp(operadorSalto, "JE") == 0) // IGUAL
+	
+	if (strcmp(operadorSalto, "JNB") == 0) // 
 	{
-		return "JNE"; // DISTINTO
+		return "JNAE"; // 
 	}
-	if (strcmp(operadorSalto, "JNE") == 0) // DISTINTO
+	if (strcmp(operadorSalto, "JNBE") == 0) // 
 	{
-		return "JE"; //IGUAL
+		return "JNA"; //
 	}
-	if (strcmp(operadorSalto, "JB") == 0) // MENOR
+	if (strcmp(operadorSalto, "JNA") == 0) // 
 	{
-		return "JAE"; // MAYOR O IGUAL
+		return "JNBE"; // 
 	}
-	if (strcmp(operadorSalto, "JA") == 0) //MAYOR
+	if (strcmp(operadorSalto, "JNAE") == 0) //
 	{
-		return "JBE"; //MENOR O IGUAL
+		return "JNB"; //
 	}
-	if (strcmp(operadorSalto, "JBE") == 0) //MENOR O IGUAL
+	if (strcmp(operadorSalto, "JNE") == 0) //
 	{
-		return "JA";	//MAYOR
+		return "JE";	//
 	}
-	if (strcmp(operadorSalto, "JAE") == 0) //MAYOR O IGUAL
+	if (strcmp(operadorSalto, "JE") == 0) //
 	{
-		return "JB"; //MENOR
-	}
-	if (strcmp(operadorSalto, "JZ") == 0) //
-	{
-		return "JNZ";
-	}
-	if (strcmp(operadorSalto, "JNZ") == 0)
-	{
-		return "JZ";
+		return "JNE"; //
 	}
 }
 
