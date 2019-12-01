@@ -13,11 +13,5 @@ i4                            INTEGER                       ?
 i5                            INTEGER                       ?                             
 i6                            INTEGER                       ?                             
 i7                            INTEGER                       ?                             
-constante1                    CONST_INTEGER                 2.00                          
-__F1__                        CONST_STRING                  "F1 "                         
-__F2__                        CONST_STRING                  "F2 "                         
-_3_00                         CONST_FLOAT                   3.00                          
-_5_00                         CONST_INTEGER                 5.00                          
-_10_00                        CONST_INTEGER                 10.00                         
-_15_00                        CONST_INTEGER                 15.00                         
+__OK_                         CONST_STRING                  "OK"                          
 auxFiltro                     INTEGER                       ?                             
