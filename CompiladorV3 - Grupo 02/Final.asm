@@ -22,7 +22,10 @@ MAXTEXTSIZE equ 50
 	_i5	dd	?
 	_i6	dd	?
 	_i7	dd	?
-	___OK_	db	"OK", "$"
+	___1_	db	"1", "$"
+	___2_	db	"2", "$"
+	___3_	db	"3", "$"
+	___4_	db	"4", "$"
 	_auxFiltro	dd	?
 	@aux0	dd	?
 	@aux1	dd	?
@@ -35,6 +38,8 @@ MAXTEXTSIZE equ 50
 	@aux8	dd	?
 	@aux9	dd	?
 	@aux10	dd	?
+	@aux11	dd	?
+	@aux12	dd	?
 
 .CODE
 START:
@@ -57,26 +62,33 @@ ETQ_2:
 ETQ_3:
 		JNA	ETQ_11	
 ETQ_4:
-		JNBE	ETQ_10	
-ETQ_5:
 		FLD	_f3	
+		FSTP	@aux4	
+ETQ_5:
+		FLD	_f4	
 		FSTP	@aux5	
 ETQ_6:
-		FLD	_f4	
-		FSTP	@aux6	
-ETQ_7:
-		FLD	@aux5	
-		FCOMP	@aux6	
+		FLD	@aux4	
+		FCOMP	@aux5	
 		FSTSW	ax	
 		SAHF		
-ETQ_8:
+ETQ_7:
 		JNB	ETQ_11	
-ETQ_9:
-		JNAE	ETQ_10	
-ETQ_10:
-		displayString	___OK_	
+ETQ_8:
+		displayString	___1_	
 		newLine		
+ETQ_9:
+		displayString	___2_	
+		newLine		
+ETQ_10:
+		JMP	ETQ_13	
 ETQ_11:
+		displayString	___3_	
+		newLine		
+ETQ_12:
+		displayString	___4_	
+		newLine		
+ETQ_13:
 		mov ax, 4C00h
 		int 21h
 END START

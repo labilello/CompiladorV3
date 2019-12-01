@@ -270,6 +270,9 @@ decision			:		C_IF_A PARENTESIS_A condicion PARENTESIS_C LLAVE_A bloqprograma LL
 							}	|
 							C_IF_A PARENTESIS_A condicion PARENTESIS_C LLAVE_A bloqprograma LLAVE_C
 							{	modificarTerceto(desapilar(&pilaPos), 1);
+								if(condicionDoble == 1)
+									modificarTerceto(desapilar(&pilaPos), 1);
+								
 								indice_if = crearTerceto("JMP", "", "");
 								apilar(&pilaPos, indice_if);
 							}
@@ -290,11 +293,13 @@ condicion			:		comparacion
 							{	sprintf(aux1, "[ %d ]", indice_comparacion);
 								indice_condicion = crearTerceto(opSalto, aux1, "--");
 								apilar(&pilaPos, indice_condicion);
+								condicionDoble = 0;
 							}	|
 							OP_NEGACION PARENTESIS_A comparacion PARENTESIS_C
 							{	sprintf(aux1, "[ %d ]", indice_comparacion);
 								indice_condicion = crearTerceto(negarSalto(opSalto), aux1, "");
 								apilar(&pilaPos, indice_condicion);
+								condicionDoble = 0;
 							}	|
 							comparacion_i OP_LOGICO_AND comparacion_d
 							{	/*sprintf(aux1, "[ %d ]", indice_comparacionI);
@@ -308,9 +313,9 @@ condicion			:		comparacion
 								apilar(&pilaPos, indice_condicion);*/
 								condicionDoble = 1;
 							}	|
-							comparacion_i 	{	printf("CREANDO TERCETO - OPSALTO: %s - NEGADO: %s\n", opSalto, negarSalto(opSalto));
+							comparacion_i 	{	modificarTerceto(indice_comparacionI, 1);
+												desapilar(&pilaPos);
 												indice_condicion = crearTerceto(negarSalto(opSalto), "RESERVADO", "--");
-												printf("APILADO %d\n", indice_condicion);
 												apilar(&pilaOr, indice_condicion); 
 												
 											}
@@ -331,7 +336,7 @@ condicion			:		comparacion
 								
 								modificarTerceto(desapilar(&pilaOr), 0);
 								modificarTerceto(desapilar(&pilaOr), 0);
-								condicionDoble = 1;
+								condicionDoble = 0;
 							}	;
 
 comparacion_i		:		comparacion { 	//indice_comparacionI = indice_comparacion+1;

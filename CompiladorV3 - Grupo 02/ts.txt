@@ -13,5 +13,8 @@ i4                            INTEGER                       ?
 i5                            INTEGER                       ?                             
 i6                            INTEGER                       ?                             
 i7                            INTEGER                       ?                             
-__OK_                         CONST_STRING                  "OK"                          
+__1_                          CONST_STRING                  "1"                           
+__2_                          CONST_STRING                  "2"                           
+__3_                          CONST_STRING                  "3"                           
+__4_                          CONST_STRING                  "4"                           
 auxFiltro                     INTEGER                       ?                             
