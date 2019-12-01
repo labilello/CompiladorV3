@@ -704,17 +704,30 @@ void imprimirCabeceraASM(FILE *arch) {
 void imprimirVariablesASM(FILE *arch) {
   int i;
 	char subfijo[50];
+  char cadena[20];
 
 	for(i = 0; i < numeroId; i++) {
 		strcpy(subfijo, "_");
-		fprintf(arch, "\t%s\t%s\t%s", strcat(subfijo, tablaId[i].nombre), (strstr(tablaId[i].tipo, "STRING")!= NULL ? "db" : "dd"), tablaId[i].valor);
-		fprintf(arch, "%s\n" , (strstr(tablaId[i].tipo, "STRING")!= NULL ? ", \"$\"" : ""));
+
+		fprintf(arch, "\t%s\t%s\t%s", strcat(subfijo, ((strstr(tablaId[i].tipo, "STRING")!= NULL )?sacarComillas(tablaId[i].valor, cadena):(tablaId[i].nombre))), 
+                                        (strstr(tablaId[i].tipo, "STRING")!= NULL ? "db" : "dd"), tablaId[i].valor);
+		fprintf(arch, "%s\n" , (strstr(tablaId[i].tipo, "STRING")!= NULL ? ", $" : ""));
 	}
 	
 	for(i = 0; i < numeroTerceto; i++) {
 		sprintf(subfijo, "@aux%d", i);
 		fprintf(arch, "\t%s\tdd\t?\n", subfijo);
 	}
+}
+
+char *sacarComillas(char *val, char *cadena){
+  strcpy(cadena, val);
+  char *ptrC = strrchr(cadena, '\"');
+  *ptrC = '\0';
+  ptrC = strchr(cadena, '\"');
+  *(ptrC++) = '\0';
+  strcpy(cadena, ptrC);
+  return cadena;
 }
 
 void imprimirCabeceraCodeASM(FILE *arch) {
@@ -772,6 +785,9 @@ void recorrerTercetos(FILE *arch) {
 		{
 			crearFDIV(arch);
 		}
+				if(esSalto(tablaTerceto[indiceTerceto].dato1) == 1) {
+			crearSalto(arch);
+		}
 
 		if(strcmp(tablaTerceto[indiceTerceto].dato1, "=") == 0){
 			crearASIG(arch);
@@ -800,6 +816,38 @@ void recorrerTercetos(FILE *arch) {
 		
 
 	}
+
+	fprintf(arch,"mov ah,4ch\n" );
+    fprintf(arch,"mov al,0\n" );
+    fprintf(arch,"int 21h\n" );
+	fprintf(arch,"\nSTRLEN PROC NEAR\n");
+	fprintf(arch,"\tmov BX,0\n");
+	fprintf(arch,"\nSTRL01:\n");
+	fprintf(arch,"\tcmp BYTE PTR [SI+BX],'$'\n");
+	fprintf(arch,"\tje STREND\n");
+	fprintf(arch,"\tinc BX\n");
+	fprintf(arch,"\tjmp STRL01\n");
+	fprintf(arch,"\nSTREND:\n");
+	fprintf(arch,"\tret\n");
+	fprintf(arch,"\nSTRLEN ENDP\n");
+	fprintf(arch,"\nCOPIAR PROC NEAR\n");
+	fprintf(arch,"\tcall STRLEN\n");
+	fprintf(arch,"\tcmp BX,MAXTEXTSIZE\n");
+	fprintf(arch,"\tjle COPIARSIZEOK\n");
+	fprintf(arch,"\tmov BX,MAXTEXTSIZE\n");
+	fprintf(arch,"\nCOPIARSIZEOK:\n");
+	fprintf(arch,"\tmov CX,BX\n");
+	fprintf(arch,"\tcld\n");
+	fprintf(arch,"\trep movsb\n");
+	fprintf(arch,"\tmov al,'$'\n");
+	fprintf(arch,"\tmov BYTE PTR [DI],al\n");
+	fprintf(arch,"\tret\n");
+	fprintf(arch,"\nCOPIAR ENDP\n");
+	fprintf(arch,"\nEND START\n");
+	fclose(arch);
+
+
+
 }
 
 void imprimirColaCodeASM(FILE *arch) {
@@ -1140,39 +1188,10 @@ int tipoElemento(char *elemento)
     }
     i++;
   }
-/*
-  if(strcmp(tablaId[i].tipo, "CONST_INTEGER") == 0 )
-  {
-    crearFloat(strcat(auxVal, tablaId[i].valor));
-    if(strcmp(auxVal, tablaId[i].nombre) == 0){
-      printf("%s es CONST_INTEGER\n", tablaId[i].nombre);
-      return 1;
-    }else{
-      return -1;
-    }
-  }
-  if(strcmp(tablaId[i].tipo, "CONST_FLOAT") == 0)
-  {
-    crearFloat(strcat(auxVal, tablaId[i].valor));
-    if(strcmp(auxVal, tablaId[i].nombre) == 0){
-      printf("%s es CONST_INTEGER\n", tablaId[i].nombre);
-      return 2;
-    }else{
-      return -1;
-    }
-  }
-  if(strcmp(tablaId[i].tipo, "INTEGER") != 0)
-  {
-    printf("%s es INTEGER\n", tablaId[i].nombre);
-    return 4;
-  }
-  if(strcmp(tablaId[i].tipo, "FLOAT") != 0)
-  {
-    printf("%s es FLOAT\n", tablaId[i].nombre);
-    return 5;
-  }*/
+
   return -1;
 }
+int esSalto(char *instruccion) {
 
 int esSalto(char *instruccion) {
 	/***** LISTO *****/
